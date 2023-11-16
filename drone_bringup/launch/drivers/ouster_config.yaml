@@ -1,0 +1,38 @@
+drone1/os/os_driver:
+  ros__parameters:
+    sensor_hostname: '192.168.1.20' # 'os-992215001101.local'
+    udp_dest: '192.168.1.30' ## TODO: check if jetson IP is correct ## PC: 192.168.1.100
+    mtp_dest: ''
+    mtp_main: false
+    lidar_mode: '1024x20'
+    timestamp_mode: 'TIME_FROM_ROS_TIME'
+    udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
+    metadata: ''
+    lidar_port: 7505
+    imu_port: 7504
+    sensor_frame: 'drone1/os_a'
+    lidar_frame: 'drone1/os_a_laser_data_frame'
+    imu_frame: 'drone1/os_a_imu_data_frame'
+    use_system_default_qos: true ## TODO: check
+drone1/os/os_cloud:
+  ros__parameters:
+    timestamp_mode: 'TIME_FROM_ROS_TIME'  # this value needs to match os_driver/timestamp_mode    
+drone2/os_center/os_driver:
+  ros__parameters:
+    sensor_hostname: '192.168.10.20' # 'os-992215001101.local'
+    udp_dest: '192.168.10.5'
+    mtp_dest: ''
+    mtp_main: false
+    lidar_mode: '1024x20'
+    timestamp_mode: 'TIME_FROM_ROS_TIME'
+    udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
+    metadata: ''
+    lidar_port: 7507
+    imu_port: 7506
+    sensor_frame: 'drone2/os_center_a'
+    lidar_frame: 'drone2/os_center_a_laser_data_frame'
+    imu_frame: 'drone2/os_center_a_imu_data_frame'
+    use_system_default_qos: true    
+drone2/os_center/os_cloud:
+  ros__parameters:
+    timestamp_mode: 'TIME_FROM_ROS_TIME'  # this value needs to match os_driver/timestamp_mode
