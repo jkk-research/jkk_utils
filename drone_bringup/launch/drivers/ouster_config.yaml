@@ -6,6 +6,7 @@ drone1/os/os_driver:
     mtp_main: false
     lidar_mode: '1024x20'
     timestamp_mode: 'TIME_FROM_ROS_TIME'
+    proc_mask: PCL|IMU # use any combination of the 4 flags IMG|PCL|IMU|SCAN 
     udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
     metadata: ''
     lidar_port: 7505
@@ -25,6 +26,7 @@ drone2/os_center/os_driver:
     mtp_main: false
     lidar_mode: '1024x20'
     timestamp_mode: 'TIME_FROM_ROS_TIME'
+    proc_mask: PCL # use any combination of the 4 flags IMG|PCL|IMU|SCAN 
     udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
     metadata: ''
     lidar_port: 7507
