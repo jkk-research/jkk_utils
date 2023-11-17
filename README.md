@@ -18,11 +18,17 @@ cd ~/ros2_ws
 ```
 
 ``` bash
-colcon build --packages-select drone_bringup
+colcon build --packages-select drone_bringup time_utils
 ```
+
+``` bash
+source ~/ros2_ws/install/setup.bash
+```
+
 
 # Packages
 - `drone_bingup`: ROS 2 package for drone drivers and settings
+- `time_utils`: ROS 2 package for simple functions as human readable display, difference etc 
 
 # Related
 - https://github.com/jkk-research/docker_ros2_images
