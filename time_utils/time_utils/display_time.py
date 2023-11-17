@@ -8,7 +8,7 @@ class DiplayTimeSub(Node):
 
     def __init__(self):
         super().__init__('disptime')
-        self.declare_parameter('topic', '/drone1/gps/duro/time_ref')
+        self.declare_parameter('topic', rclpy.Parameter.Type.STRING)
         my_topic = self.get_parameter('topic').get_parameter_value().string_value
         self.get_logger().info('Subscribing to %s' % my_topic)
         self.subscription = self.create_subscription(sen_msg.TimeReference, my_topic, self.timeref_callback, 10)

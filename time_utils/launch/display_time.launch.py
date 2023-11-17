@@ -9,7 +9,7 @@ from launch.substitutions import (
 
 def generate_launch_description():
     return LaunchDescription([
-        DeclareLaunchArgument("topic", description="a topic to process"),
+        DeclareLaunchArgument("topic", description="a topic to process", default_value="/drone1/gps/duro/time_ref"),
         Node(
             package='time_utils',
             executable='display_time',
