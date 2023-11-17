@@ -2,6 +2,8 @@
 
 ## ROS 2 rosbag recorder (MCAP format)
 
+DIR1="$(pwd)"
+# echo $DIR1
 cd /bag
 mkdir -p $(date -I)
 cd $(date -I)
@@ -14,6 +16,6 @@ PWD1="$(pwd)"
 echo "Writing to file: $PWD1/$FILE1"
 # 524288000 byte is ~0.5 GB
 # 1048576000 byte is ~ 1 GB
-ros2 bag record -s mcap --all -o $FILE1 --max-cache-size 1048576000 --storage-config-file mcap_writer_options1.yaml
+ros2 bag record -s mcap --all -o $FILE1 --max-cache-size 1048576000 --storage-config-file $DIR1/mcap_writer_options1.yaml
 
 
