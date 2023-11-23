@@ -10,7 +10,7 @@ cd $(date -I)
 TEXT1="$1"
 VEH1="_drone1_"
 TIME1="$(date +"%Y-%m-%d_%H-%M")"
-FILE1="$TEXT1$VEH1$TIME1"
+FILE1="${TEXT1}${VEH1}${TIME1}"
 FILE2="x_rosparam_dump_$TEXT1$TIME1.txt"
 PWD1="$(pwd)"
 echo "Writing to file: $PWD1/$FILE1"
