@@ -4,7 +4,7 @@ drone1/os/os_driver:
     udp_dest: '192.168.1.30' ## TODO: check if jetson IP is correct ## PC: 192.168.1.100
     mtp_dest: ''
     mtp_main: false
-    lidar_mode: '1024x20'
+    lidar_mode: '1024x10'
     timestamp_mode: 'TIME_FROM_ROS_TIME'
     proc_mask: PCL|IMU # use any combination of the 4 flags IMG|PCL|IMU|SCAN 
     udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
