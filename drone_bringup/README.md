@@ -1,6 +1,6 @@
 # `drone_bringup` package
 
-[![Static Badge](https://img.shields.io/badge/ROS_2-Humble-blue)](https://docs.ros.org/en/humble/)
+[![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5)](https://docs.ros.org/en/humble/)
 
 Drone topics:
 
