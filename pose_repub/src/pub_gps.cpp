@@ -40,9 +40,9 @@ class PubLexus : public rclcpp::Node
   }
 
 public:
-  PubLexus() : Node("pub_lexus_node")
+  PubLexus() : Node("pub_gps_node")
   {
-    RCLCPP_INFO_STREAM(this->get_logger(), "pub_lexus_node started: ");
+    RCLCPP_INFO_STREAM(this->get_logger(), "pub_gps_node started: ");
     this->declare_parameter<std::string>("bestutm_topic", "/lexus3/gps/nova/bestutm");
     this->declare_parameter<float>("wheelbase", wheelbase);
     this->get_parameter("bestutm_topic", bestutm_topic);
