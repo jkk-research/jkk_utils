@@ -3,7 +3,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
-from pacmod3_msgs.msg import VehicleSpeedRpt, SteeringAuxRpt, SteeringCmd
+from pacmod3_msgs.msg import VehicleSpeedRpt, SteeringAuxRpt, SteeringCmd, SystemRptFloat
 import pygame
 import math
 
@@ -22,6 +22,7 @@ class MinimalSubscriber(Node):
         self.last_steering_angle = None
         self.last_current_steering_angle=None
         self.throttle=None
+        self.brake=None
         
     def init_pygame(self):
         pygame.init()
@@ -39,7 +40,7 @@ class MinimalSubscriber(Node):
         # self.subscription1 = self.create_subscription(Twist, '/lexus3/cmd_vel', self.listener_callback1, 10)
         
         self.subscription2 = self.create_subscription(VehicleSpeedRpt, '/lexus3/pacmod/vehicle_speed_rpt', self.vehicle_speed_listener, 10)
-        self.subscription3 = self.create_subscription(SteeringAuxRpt, '/lexus3/pacmod/steering_aux_rpt', self.current_steering_listener, 10)
+        self.subscription3 = self.create_subscription(SystemRptFloat, '/lexus3/pacmod/steering_rpt', self.current_steering_listener, 10)
         self.subscription4 = self.create_subscription(SteeringCmd, '/lexus3/pacmod/steering_cmd', self.ref_steering_listener, 10)
         self.subscription4 = self.create_subscription(Joy, '/joy', self.joystick_listener, 10)
 
@@ -65,8 +66,8 @@ class MinimalSubscriber(Node):
         if self.last_steering_angle is not None:
             self.draw_ref_steering_wheel((self.screen_width // 2, self.screen_height // 2), self.last_steering_angle)
             
-        if self.throttle is not None:
-            self.draw_bar(self.throttle)
+        if self.throttle or self.brake is not None:
+            self.draw_bar(self.throttle , self.brake)
         
         pygame.display.flip()  
 
@@ -78,16 +79,16 @@ class MinimalSubscriber(Node):
         line_color = (255, 0, 0)
 
 
-        vertical_0_start = self.rotate_point(position, angle, -inner_wheel_radius)
-        vertical_0_end = self.rotate_point(position, angle, -wheel_radius)
-        horizontal_0_start = self.rotate_point(position, angle + 90, inner_wheel_radius)  # Adjust angle for horizontal lines
-        horizontal_0_end = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_0a_start = self.rotate_point(position, angle - 90, inner_wheel_radius)
-        horizontal_0a_end = self.rotate_point(position, angle - 90, wheel_radius)
-        horizontal_1_start = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_1_end = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_1a_start = self.rotate_point(position, angle - 90, wheel_radius)
-        horizontal_1a_end = self.rotate_point(position, angle - 90, wheel_radius)
+        vertical_0_start = self.rotate_point(position, angle +90, -inner_wheel_radius)
+        vertical_0_end = self.rotate_point(position, angle +90 , -wheel_radius)
+        horizontal_0_start = self.rotate_point(position, angle , inner_wheel_radius)  # Adjust angle for horizontal lines
+        horizontal_0_end = self.rotate_point(position, angle , wheel_radius)
+        horizontal_0a_start = self.rotate_point(position, angle +180  , inner_wheel_radius)
+        horizontal_0a_end = self.rotate_point(position, angle + 180  , wheel_radius)
+        horizontal_1_start = self.rotate_point(position, angle  , wheel_radius)
+        horizontal_1_end = self.rotate_point(position, angle , wheel_radius)
+        horizontal_1a_start = self.rotate_point(position, angle , wheel_radius)
+        horizontal_1a_end = self.rotate_point(position, angle , wheel_radius)
 
         # Draw elements using calculated coordinates
         pygame.draw.circle(self.screen, inner_wheel_color, position, inner_wheel_radius, 4)
@@ -109,16 +110,16 @@ class MinimalSubscriber(Node):
         rim_color = (255, 255, 255)
         line_color = (0, 0, 255)
 
-        vertical_0_start = self.rotate_point(position, angle, -inner_wheel_radius)
-        vertical_0_end = self.rotate_point(position, angle, -wheel_radius)
-        horizontal_0_start = self.rotate_point(position, angle + 90, inner_wheel_radius)  # Adjust angle for horizontal lines
-        horizontal_0_end = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_0a_start = self.rotate_point(position, angle - 90, inner_wheel_radius)
-        horizontal_0a_end = self.rotate_point(position, angle - 90, wheel_radius)
-        horizontal_1_start = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_1_end = self.rotate_point(position, angle + 90, wheel_radius)
-        horizontal_1a_start = self.rotate_point(position, angle - 90, wheel_radius)
-        horizontal_1a_end = self.rotate_point(position, angle - 90, wheel_radius)
+        vertical_0_start = self.rotate_point(position, angle +90 , -inner_wheel_radius)
+        vertical_0_end = self.rotate_point(position, angle +90 , -wheel_radius)
+        horizontal_0_start = self.rotate_point(position, angle , inner_wheel_radius)  # Adjust angle for horizontal lines
+        horizontal_0_end = self.rotate_point(position, angle , wheel_radius)
+        horizontal_0a_start = self.rotate_point(position, angle +180 , inner_wheel_radius)
+        horizontal_0a_end = self.rotate_point(position, angle +180  , wheel_radius)
+        horizontal_1_start = self.rotate_point(position, angle, wheel_radius)
+        horizontal_1_end = self.rotate_point(position, angle  , wheel_radius)
+        horizontal_1a_start = self.rotate_point(position, angle , wheel_radius)
+        horizontal_1a_end = self.rotate_point(position, angle , wheel_radius)
 
         # Draw elements using calculated coordinates
         pygame.draw.circle(self.screen, inner_wheel_color, position, inner_wheel_radius, 4)
@@ -132,7 +133,7 @@ class MinimalSubscriber(Node):
         text = self.font.render('Ref angle: {:.2f}°'.format(angle), True, (0, 0, 255))
         self.screen.blit(text, (325, 340))
 
-    def draw_bar(self,level):
+    def draw_bar(self,acceleration,brake):
         bar_x = 50
         bar_y = 100
         bar_width = 50
@@ -142,15 +143,15 @@ class MinimalSubscriber(Node):
         acc_color = (0, 255, 0)  # Green for acceleration
         braking_color = (255, 0, 0)  # Red for braking
 
-        throttle_percentage = -level / bar_height * 100
+        throttle_acceleration_percentage =  acceleration / bar_height* 100 + 0.5
+        throttle_braking_percentage=brake / bar_height* 100 + 0.5 
+        color = acc_color if throttle_acceleration_percentage >= 0 else braking_color
 
-        color = acc_color if throttle_percentage >= 0 else braking_color
-
-        display_percentage = min(100, abs(throttle_percentage))
+        display_percentage = min(100, abs(throttle_acceleration_percentage))
+        display_brake_percentage = min(100, abs(throttle_braking_percentage))
 
         half_bar_height = bar_height // 2
-        bar_top = bar_y + half_bar_height - (display_percentage / 100 * bar_height)
-        bar_bottom = bar_y + half_bar_height - (-display_percentage / 100 * bar_height)
+        bar_top = bar_y + half_bar_height - (display_percentage / 2* bar_height)
 
         pygame.draw.rect(self.screen, bar_color, (bar_x, bar_y, bar_width, bar_height))
         pygame.draw.line(self.screen,zero_color,(bar_x*0.6,bar_y+bar_height//2),(bar_x*2.3,bar_y+bar_height//2),2)
@@ -158,9 +159,16 @@ class MinimalSubscriber(Node):
         zero_point = self.font.render('0', True, zero_color)
         self.screen.blit(zero_point, (bar_x*1.7+bar_width, 190))
 
-        inner_bar_height = display_percentage / 100 * bar_height
-        
-        pygame.draw.rect(self.screen, color, (bar_x, bar_top, bar_width, inner_bar_height)) if throttle_percentage>=0 else pygame.draw.rect(self.screen, color, (bar_x, bar_bottom, bar_width, inner_bar_height))
+        inner_bar_height = display_percentage / 2 * bar_height
+        inner_barb_height = display_brake_percentage / 2 * bar_height  
+
+        if throttle_acceleration_percentage :
+            color = acc_color
+            pygame.draw.rect(self.screen, color, (bar_x, bar_top, bar_width, inner_bar_height))
+
+        if throttle_braking_percentage:
+            color = braking_color    
+            pygame.draw.rect(self.screen, color, (bar_x, bar_height, bar_width, inner_barb_height))
         
         full_text=self.font.render('1', True, acc_color)
         self.screen.blit(full_text, (bar_x+bar_width//2-10, bar_y*1.2-bar_x))
@@ -168,7 +176,7 @@ class MinimalSubscriber(Node):
         full_brake_text=self.font.render('-1', True, braking_color)
         self.screen.blit(full_brake_text, (bar_x+bar_width//2-10, bar_y*1.1+bar_height))
 
-        text = self.font.render('Joystick:{:.2f}%'.format(throttle_percentage), True, acc_color)
+        text = self.font.render('Joystick:{:.2f}%'.format(throttle_acceleration_percentage), True, acc_color)
         self.screen.blit(text, (bar_x//2, bar_y*1.35+bar_height))
 
     def rotate_point(self,center, angle, radius):
@@ -191,7 +199,8 @@ class MinimalSubscriber(Node):
         self.update_display()
 
     def current_steering_listener(self, msg):
-        self.last_current_steering_angle = math.degrees(msg.rotation_rate)
+        # self.last_current_steering_angle = math.degrees(msg.rotation_rate)
+        self.last_current_steering_angle = math.degrees(msg.output)
         self.update_display()
 
     def ref_steering_listener(self, msg):
@@ -199,7 +208,8 @@ class MinimalSubscriber(Node):
         self.update_display()
         
     def joystick_listener(self, msg):
-        self.throttle = math.degrees(msg.axes[0])
+        self.throttle = msg.axes[1]
+        self.brake=msg.axes[2]
         self.update_display()
         
 
