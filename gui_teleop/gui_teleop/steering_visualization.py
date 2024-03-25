@@ -23,6 +23,7 @@ class MinimalSubscriber(Node):
         self.last_current_steering_angle=None
         self.throttle=None
         self.brake=None
+        self.get_logger().info('Subscribing to /lexus3/pacmod/enabled')
         
     def init_pygame(self):
         pygame.init()
@@ -43,6 +44,7 @@ class MinimalSubscriber(Node):
         self.subscription3 = self.create_subscription(SystemRptFloat, '/lexus3/pacmod/steering_rpt', self.current_steering_listener, 10)
         self.subscription4 = self.create_subscription(SteeringCmd, '/lexus3/pacmod/steering_cmd', self.ref_steering_listener, 10)
         self.subscription4 = self.create_subscription(Joy, '/joy', self.joystick_listener, 10)
+        self.timer = self.create_timer(0.1, self.update_display)
 
     def update_display(self):
         self.screen.fill((0, 0, 0))
@@ -56,7 +58,7 @@ class MinimalSubscriber(Node):
             self.screen.blit(text, (150, 70))
 
         if self.last_current_speed is not None:
-            text = self.font.render('Current Speed: {:.2f}Km/h'.format(self.last_current_speed), True, (220, 38, 38))
+            text = self.font.render('Current Speed: {:.2f} Km/h'.format(self.last_current_speed), True, (220, 38, 38))
             self.screen.blit(text, (150, 50))
             
         
@@ -190,12 +192,11 @@ class MinimalSubscriber(Node):
         self.update_display()
 
     def listener_callback1(self, msg):
-
         self.last_reference_speed = msg.linear.x
         self.update_display()
 
     def vehicle_speed_listener(self, msg):
-        self.last_current_speed = msg.vehicle_speed
+        self.last_current_speed = msg.vehicle_speed * 3.6
         self.update_display()
 
     def current_steering_listener(self, msg):
