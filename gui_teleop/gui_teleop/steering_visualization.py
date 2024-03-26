@@ -37,13 +37,13 @@ class MinimalSubscriber(Node):
         # self.steering_wheel_image.set_alpha(180)
         
     def init_subscriptions(self):
-        self.subscription = self.create_subscription(Bool, '/lexus3/pacmod/enabled', self.check_control, 10)
-        # self.subscription1 = self.create_subscription(Twist, '/lexus3/cmd_vel', self.listener_callback1, 10)
+        self.subscription = self.create_subscription(Bool, '/lexus3/pacmod/enabled', self.check_control, 1)
+        # self.subscription1 = self.create_subscription(Twist, '/lexus3/cmd_vel', self.listener_callback1, 1)
         
-        self.subscription2 = self.create_subscription(VehicleSpeedRpt, '/lexus3/pacmod/vehicle_speed_rpt', self.vehicle_speed_listener, 10)
-        self.subscription3 = self.create_subscription(SystemRptFloat, '/lexus3/pacmod/steering_rpt', self.current_steering_listener, 10)
-        self.subscription4 = self.create_subscription(SteeringCmd, '/lexus3/pacmod/steering_cmd', self.ref_steering_listener, 10)
-        self.subscription4 = self.create_subscription(Joy, '/joy', self.joystick_listener, 10)
+        self.subscription2 = self.create_subscription(VehicleSpeedRpt, '/lexus3/pacmod/vehicle_speed_rpt', self.vehicle_speed_listener, 1)
+        self.subscription3 = self.create_subscription(SystemRptFloat, '/lexus3/pacmod/steering_rpt', self.current_steering_listener, 1)
+        self.subscription4 = self.create_subscription(SteeringCmd, '/lexus3/pacmod/steering_cmd', self.ref_steering_listener, 1)
+        self.subscription4 = self.create_subscription(Joy, '/joy', self.joystick_listener, 1)
         self.timer = self.create_timer(0.1, self.update_display)
 
     def update_display(self):
@@ -70,6 +70,7 @@ class MinimalSubscriber(Node):
             
         if self.throttle or self.brake is not None:
             self.draw_bar(self.throttle , self.brake)
+        
         
         pygame.display.flip()  
 
