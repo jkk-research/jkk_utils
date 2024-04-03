@@ -2,7 +2,7 @@
 
 DIR1="$(pwd)"
 # echo $DIR1
-cd /bag
+cd /media/nvidia/KINGSTON
 mkdir -p $(date -I)
 cd $(date -I)
 TEXT1="$1"
