@@ -14,8 +14,12 @@
   <exec_depend>ros2launch</exec_depend>
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>pacmod3_msgs</depend>
-
+  <depend>tf2_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
   
   <export>
     <build_type>ament_cmake</build_type>

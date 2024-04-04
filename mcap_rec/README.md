@@ -23,3 +23,10 @@ cd ~/ros2_ws/
 ``` bash
 colcon build --symlink-install --packages-select mcap_rec
 ```
+
+## Run `ROS 2` node / launch file
+
+``` bash
+source ~/ros2_ws/install/setup.bash
+```
+

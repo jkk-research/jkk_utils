@@ -9,7 +9,12 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(pacmod3_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 
 # uncomment the following section in order to fill in
@@ -20,11 +25,18 @@ set(ament_dependencies
   rclcpp
   std_msgs
   pacmod3_msgs    
+  geometry_msgs
+  tf2
+  tf2_msgs
+  tf2_ros
+  tf2_geometry_msgs    
 )
 
 
 add_executable(temp_nn_pose src/temp_nn_pose.cpp)
 ament_target_dependencies(temp_nn_pose ${ament_dependencies}) 
+add_executable(odometry_from_twist src/odometry_from_twist.cpp)
+ament_target_dependencies(odometry_from_twist ${ament_dependencies})
 
 
 
@@ -47,5 +59,6 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME})
 install(TARGETS
   temp_nn_pose
+  odometry_from_twist
   DESTINATION lib/${PROJECT_NAME})
 ament_package()
