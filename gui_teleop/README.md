@@ -1,5 +1,6 @@
 # `gui_teleop` ROS 2 package
-Handy presets for MCAP record `ROS 2` `Humble`
+
+GUI for teloperation in `ROS 2` `Humble`
 
 [![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5)](https://docs.ros.org/en/humble/)
 
