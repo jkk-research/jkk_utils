@@ -30,3 +30,16 @@ colcon build --symlink-install --packages-select mcap_rec
 source ~/ros2_ws/install/setup.bash
 ```
 
+``` bash
+ros2 launch mcap_rec preset_bosch01.launch.py tag:=scenario01
+```
+
+
+## Links
+- https://mcap.dev/guides/cli
+- https://github.com/foxglove/mcap/releases
+
+## Useful
+``` bash
+wget https://github.com/foxglove/mcap/releases/download/releases%2Fmcap-cli%2Fv0.0.42/mcap-linux-amd64 -o mcap
+```
