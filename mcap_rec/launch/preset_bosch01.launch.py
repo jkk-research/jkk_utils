@@ -6,7 +6,11 @@ import datetime
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch.actions import ExecuteProcess, LogInfo, OpaqueFunction
+from launch.actions import ExecuteProcess, OpaqueFunction, IncludeLaunchDescription
+from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import TimerAction
+
 
 DeclareLaunchArgument("tag", description="a tag to the recorded file", default_value="bosch01"),
 tag_ = (LaunchConfiguration("tag"))
@@ -18,8 +22,8 @@ def exit_process_function(_launch_context):
     # tag_ to string
     tag_ = _launch_context.launch_configurations["tag"]
     print("")
-    print("ros2 bag info /mnt/bag/" + get_date() + "_bosch/"+ tag_ +"_lexus3_" + get_date_and_time() + ".mcap")
-    print("~/mcap/mcap info /mnt/bag/" + get_date() + "_bosch/"+ tag_ +"_lexus3_" + get_date_and_time() + "/" + tag_ +"_lexus3_" + get_date_and_time() + "_0.mcap")
+    print("ros2 bag info /mnt/bag/" + date_ + "_bosch/"+ tag_ +"_lexus3_" + date_and_time_)
+    print("~/mcap/mcap info /mnt/bag/" + date_ + "_bosch/"+ tag_ +"_lexus3_" + date_and_time_ + "/" + tag_ +"_lexus3_" + date_and_time_ + "_0.mcap")
 
 def get_date_and_time():
     """Get the current date and time."""
@@ -29,11 +33,14 @@ def get_date():
     """Get the current date."""
     return datetime.datetime.now().strftime('%Y-%m-%d')
 
+date_and_time_ = get_date_and_time()
+date_ = get_date()
+
 def generate_launch_description():
     
     return LaunchDescription([
         ExecuteProcess(
-            cmd=['/home/dev/ros2_ws/src/jkk_utils/mcap_rec/etc/record_mcap1.sh', tag_, get_date_and_time()],
+            cmd=['/home/dev/ros2_ws/src/jkk_utils/mcap_rec/etc/record_mcap1.sh', tag_, date_and_time_],
             log_cmd=True,
             shell=True,
             output='screen',
@@ -45,5 +52,14 @@ def generate_launch_description():
                 ),
                 # LogInfo(msg='This message prints properly.')
             ]
-        )
+        ), 
+        # static tf
+        TimerAction(
+        period=2.0, # delay
+        actions=[    
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    FindPackageShare("lexus_bringup"), '/launch', '/tf_static.launch.py'])
+            ),
+        ]),
     ])
