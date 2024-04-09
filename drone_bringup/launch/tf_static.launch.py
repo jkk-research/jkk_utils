@@ -31,6 +31,13 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='base_gps_tf_publisher',
             output='screen',
-            arguments=['0.0', '0.0', '0.1', '0.0', '0.0', str(math.pi), namespace + '/' + 'gps', namespace + '/' + 'base_link'], # TODO
+            arguments=['0.0', '0.0', '0.1', '0.0', '0.0', str(math.pi), namespace + '/' + 'gps', namespace + '/' + 'base_link'], 
+        ),
+            Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='base_rslidar_tf_publisher',
+            output='screen',
+            arguments=['0.0', '0.0', '0.0', '0.0', '0.0', '0.0', namespace + '/' + 'base_link', 'rslidar'], 
         ),
     ])
