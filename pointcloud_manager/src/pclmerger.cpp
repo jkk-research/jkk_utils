@@ -26,8 +26,7 @@ namespace pointcloud_merger{
     for(unsigned int i=0; i<vector_of_clouds.size(); i++){
       vector_of_subscriptions.push_back(this->create_subscription<sensor_msgs::msg::PointCloud2>(vector_of_topic_names[i], qos, bound_callback_func));
     }
-    
-    timer_ = this->create_wall_timer(50ms, std::bind(&PCLMerger::broadcast_timer_callback, this));
+
     timer_for_publishing_ = this->create_wall_timer(50ms, std::bind(&PCLMerger::publish_pcl_callback, this));
 
     this->concatenated_cloud_pub = this->create_publisher<sensor_msgs::msg::PointCloud2>("concatenated_points", 1);
@@ -56,7 +55,6 @@ namespace pointcloud_merger{
       vector_of_subscriptions.push_back(this->create_subscription<sensor_msgs::msg::PointCloud2>(vector_of_topic_names[i], qos, bound_callback_func));
     }
     
-    timer_ = this->create_wall_timer(50ms, std::bind(&PCLMerger::broadcast_timer_callback, this));
     timer_for_publishing_ = this->create_wall_timer(50ms, std::bind(&PCLMerger::publish_pcl_callback, this));
 
     this->concatenated_cloud_pub = this->create_publisher<sensor_msgs::msg::PointCloud2>("concatenated_points", 1);
@@ -77,7 +75,7 @@ namespace pointcloud_merger{
   }
 
   void PCLMerger::callbackCommon(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& msg){
-    string target_frame = "lexus3/os_left_a_laser";
+    string target_frame = "world";
     geometry_msgs::msg::TransformStamped transform;
     for(unsigned int i=0; i<vector_of_clouds.size(); i++){
       if(msg->header.frame_id.c_str() == vector_of_frames[i]){
@@ -100,56 +98,22 @@ namespace pointcloud_merger{
     pcl::PointCloud<pcl::PointXYZI> result_cloud;
     sensor_msgs::msg::PointCloud2 result_message;
 
+    int data = 0;
     for(unsigned int i=0; i<vector_of_clouds.size(); i++){
       result_cloud += *vector_of_clouds[i];
-      vector_of_clouds[i]->clear();
+      if(!vector_of_clouds[i]->empty()){
+        data++;
+      }
     }
     
     result_cloud.header.frame_id = "world";
     pcl::toROSMsg(result_cloud, result_message);
     concatenated_cloud_pub->publish(result_message);
-  }
-
-  void PCLMerger::broadcast_timer_callback(){
-    geometry_msgs::msg::TransformStamped t;
-
-    t.header.stamp = this->get_clock()->now();
-    t.header.frame_id = "world";
-    t.child_frame_id = "lexus3/os_left_a";
-    t.transform.translation.x = 0.0;
-    t.transform.translation.y = 0.0;
-    t.transform.translation.z = 0.0;
-    t.transform.rotation.x = 0.0;
-    t.transform.rotation.y = 0.0;
-    t.transform.rotation.z = 0.0;
-    t.transform.rotation.w = 1.0;
-    tf_broadcaster_->sendTransform(t);
-
-    t.header.stamp = this->get_clock()->now();
-    t.header.frame_id = "world";
-    t.child_frame_id = "lexus3/os_right_a";
-    t.transform.translation.x = 0.1;
-    t.transform.translation.y = 0.1;
-    t.transform.translation.z = 0.1;
-    t.transform.rotation.x = 0.0;
-    t.transform.rotation.y = 0.0;
-    t.transform.rotation.z = 0.0;
-    t.transform.rotation.w = 1.0;
-
-    tf_broadcaster_->sendTransform(t);
-
-    t.header.stamp = this->get_clock()->now();
-    t.header.frame_id = "world";
-    t.child_frame_id = "lexus3/os_center";
-    t.transform.translation.x = 0.1;
-    t.transform.translation.y = 0.1;
-    t.transform.translation.z = 0.1;
-    t.transform.rotation.x = 0.0;
-    t.transform.rotation.y = 0.0;
-    t.transform.rotation.z = 0.0;
-    t.transform.rotation.w = 1.0;
-
-    tf_broadcaster_->sendTransform(t);
+    if(data==vector_of_clouds.size()){
+      for(unsigned int i=0; i<vector_of_clouds.size(); i++){
+        vector_of_clouds[i]->clear();
+      }
+    }
   }
 }
 

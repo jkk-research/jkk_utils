@@ -65,7 +65,6 @@ namespace pointcloud_merger{
         void initData();
         void callbackCommon(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& msg);
         void publish_pcl_callback();
-        void broadcast_timer_callback();
     };
 }
 
