@@ -18,7 +18,7 @@ cd ~/ros2_ws
 ```
 
 ``` bash
-colcon build --packages-select drone_bringup time_utils gamma_bringup mcap_rec timing_benchmark gui_teleop
+colcon build --packages-select drone_bringup time_utils gamma_bringup mcap_rec timing_benchmark gui_teleop --symlink-install
 ```
 
 ``` bash
@@ -35,6 +35,9 @@ source ~/ros2_ws/install/setup.bash
 - `timing_benchmark`: Measure time delays in ROS 2
 - `gui_teleop`: GUI for teleoperation and visualization 
 - `demo_jkk`: Various demonstration related launch files and nodes
+
+# Other directories
+- `mcap_scripts`: Data manipulation scripts for mcap
 
 # Related
 - https://github.com/jkk-research/docker_ros2_images

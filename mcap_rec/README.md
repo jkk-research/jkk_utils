@@ -34,6 +34,9 @@ source ~/ros2_ws/install/setup.bash
 ros2 launch mcap_rec preset_bosch01.launch.py tag:=scenario01
 ```
 
+``` bash
+ros2 launch mcap_rec all_compressed.launch.py
+```
 
 ## Links
 - https://mcap.dev/guides/cli
