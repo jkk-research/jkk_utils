@@ -23,3 +23,7 @@ cd ~/ros2_ws/
 ``` bash
 colcon build --symlink-install --packages-select pose_repub
 ```
+
+``` bash
+ros2 launch pose_repub example1.launch.py
+```
