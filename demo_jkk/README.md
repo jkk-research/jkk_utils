@@ -8,6 +8,8 @@ sudo apt install ros-humble-rviz-2d-overlay-plugins
 ```
 or https://github.com/jkk-research/rviz_2d_overlay_plugins
 
+https://github.com/astuff/pacmod3#installation
+
 ## Run 
 
 ``` bash

@@ -15,6 +15,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 
 # uncomment the following section in order to fill in
@@ -29,7 +30,8 @@ set(ament_dependencies
   tf2
   tf2_msgs
   tf2_ros
-  tf2_geometry_msgs    
+  tf2_geometry_msgs  
+  visualization_msgs  
 )
 
 
@@ -37,6 +39,8 @@ add_executable(temp_nn_pose src/temp_nn_pose.cpp)
 ament_target_dependencies(temp_nn_pose ${ament_dependencies}) 
 add_executable(odometry_from_twist src/odometry_from_twist.cpp)
 ament_target_dependencies(odometry_from_twist ${ament_dependencies})
+add_executable(steering_marker src/steering_marker.cpp)
+ament_target_dependencies(steering_marker ${ament_dependencies})
 
 
 
@@ -60,5 +64,6 @@ install(DIRECTORY
 install(TARGETS
   temp_nn_pose
   odometry_from_twist
+  steering_marker
   DESTINATION lib/${PROJECT_NAME})
 ament_package()
