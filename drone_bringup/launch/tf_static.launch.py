@@ -29,6 +29,13 @@ def generate_launch_description():
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
+            name='livox_tf_publisher',
+            output='screen',
+            arguments=['0.0', '0.0', '0.0','0', '0.5235987756', '0',namespace + '/' + 'base_link', 'livox_frame'],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
             name='base_gps_tf_publisher',
             output='screen',
             arguments=['0.0', '0.0', '0.1', '0.0', '0.0', str(math.pi), namespace + '/' + 'gps', namespace + '/' + 'base_link'], 
