@@ -38,68 +38,68 @@ def quaternion_to_euler_angle_vectorized1(w, x, y, z):
 
     return X, Y, Z 
 
-inputs = []
-
-# list all *.mcap in /mnt/c/Users/he/Downloads
-# directory = "/mnt/c/Users/he/Downloads"
-directory = "C:\\Users\\he\\Downloads\\"
-import os
-for filename in os.listdir(directory):
-    if filename.endswith(".mcap"):
-        #print(os.path.join(directory, filename))
-        inputs.append(os.path.join(directory, filename))
-    else:
-        continue
-
-# print(inputs)
-
-# mcap_file1 = "ego_5_1_4_lexus3_2024-04-12_09-45_0.mcap"
-# mcap_file1 = "ego_5_1_15_lexus3_2024-04-12_10-43_0.mcap"
-
-
-# inputs.append(os.path.join(directory, mcap_file1))
-
-i = 0
-ts = 0.05
-firstLoop = True
-
-#step 1: calculate t0 and t1
-t0 = 0
-t1 = 0
-t = 0
-for input in inputs:
-    with open(input, "rb") as f: 
-            reader = make_reader(f, decoder_factories=[DecoderFactory()])
-            #iterate over all messages
-            for schema, channel, message, msg in reader.iter_decoded_messages():
-                if(channel.topic == "/nissan9/vehicle_speed"):
-                        t = (message.log_time) / 1000000000 ## convert to seconds
-                if(channel.topic == "/lexus3/gps/duro/current_pose"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                if(channel.topic == "/lexus3/gps/duro/navsatfix"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                if(channel.topic == "/nissan9/gps/duro/navsatfix"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                if(channel.topic == "/nissan9/gps/duro/current_pose"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                if (t0==0):
-                    t0 = t
-                    t1 = t
-                else:
-                    t0 = min(t,t0)
-                    t1 = max(t,t1)
-
-# resampling and interpolation: first production of the time channel
-# searching for t0 (least time out of all) and last (highest time of all)
-time = np.arange(t0,t1,ts)
-print("t0=%.3f,t1=%.3f, lenght of measurement is %.3f secs" % (t0, t1, t1-t0))
-print("interpolation with ts = %.3f secs" % (ts))
-
-# step 2: getting data and interpolate
-headers = ""
-
-
 def main():
+    inputs = []
+
+    # list all *.mcap in /mnt/c/Users/he/Downloads
+    # directory = "/mnt/c/Users/he/Downloads"
+    directory = "C:\\Users\\he\\Downloads\\"
+    import os
+    for filename in os.listdir(directory):
+        if filename.endswith(".mcap"):
+            #print(os.path.join(directory, filename))
+            inputs.append(os.path.join(directory, filename))
+        else:
+            continue
+
+    # print(inputs)
+
+    # mcap_file1 = "ego_5_1_4_lexus3_2024-04-12_09-45_0.mcap"
+    # mcap_file1 = "ego_5_1_15_lexus3_2024-04-12_10-43_0.mcap"
+
+
+    # inputs.append(os.path.join(directory, mcap_file1))
+
+    i = 0
+    ts = 0.05
+    firstLoop = True
+
+    #step 1: calculate t0 and t1
+    t0 = 0
+    t1 = 0
+    t = 0
+    for input in inputs:
+        with open(input, "rb") as f: 
+                reader = make_reader(f, decoder_factories=[DecoderFactory()])
+                #iterate over all messages
+                for schema, channel, message, msg in reader.iter_decoded_messages():
+                    if(channel.topic == "/nissan9/vehicle_speed"):
+                        t = (message.log_time) / 1000000000 ## convert to seconds
+                    if(channel.topic == "/lexus3/gps/duro/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if(channel.topic == "/lexus3/gps/duro/navsatfix"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if(channel.topic == "/nissan9/gps/duro/navsatfix"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if(channel.topic == "/nissan9/gps/duro/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if (t0==0):
+                        t0 = t
+                        t1 = t
+                    else:
+                        t0 = min(t,t0)
+                        t1 = max(t,t1)
+
+    # resampling and interpolation: first production of the time channel
+    # searching for t0 (least time out of all) and last (highest time of all)
+    time = np.arange(t0,t1,ts)
+    print("t0=%.3f,t1=%.3f, lenght of measurement is %.3f secs" % (t0, t1, t1-t0))
+    print("interpolation with ts = %.3f secs" % (ts))
+
+    # step 2: getting data and interpolate
+    headers = ""
+
+
     i_a = 0
     first_run = True
     plt.gca().set_aspect('equal', adjustable='box')
@@ -124,34 +124,36 @@ def main():
                 if(first_run):
                     timestamp_start = message.log_time
                     first_run = False
+                if (i_a % 100 == 0): 
+                    print("processing message %d" % i_a)
                 if (i_a % 1 == 0): # resample if necessary, 1 is no resampling
                     if(channel.topic == "/nissan9/vehicle_speed"):
                         t = message.log_time / 1000000000 ## convert to seconds
                         speed_arr1 = np.append(speed_arr1,[[t, msg.data]], axis=0)
-                if(channel.topic == "/lexus3/gps/duro/current_pose"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                    quat1 = msg.pose.orientation
-                    orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
-                    x = msg.pose.position.x
-                    y = msg.pose.position.y
-                    pose_arr1 = np.append(pose_arr1,[[t, x, y, orientation1_yaw]], axis=0)
-                if(channel.topic == "/lexus3/gps/duro/navsatfix"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                    cov1 = msg.position_covariance[0]
-                    cov2 = msg.position_covariance[4]
-                    cov3 = msg.position_covariance[8]
-                    cov_arr1 = np.append(cov_arr1,  [[t,cov1,cov2,cov3]], axis=0)
-                if(channel.topic == "/nissan9/gps/duro/navsatfix"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                    cov1 = msg.position_covariance[0]
-                    cov2 = msg.position_covariance[4]
-                    cov3 = msg.position_covariance[8]
-                    cov_arr2 = np.append(cov_arr2,  [[t,cov1,cov2,cov3]], axis=0)
-                if(channel.topic == "/nissan9/gps/duro/current_pose"):
-                    t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                    quat1 = msg.pose.orientation
-                    orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
-                    pose_arr2 = np.append(pose_arr2,[[t, msg.pose.position.x, msg.pose.position.y, orientation1_yaw]], axis=0)
+                    if(channel.topic == "/lexus3/gps/duro/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        quat1 = msg.pose.orientation
+                        orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
+                        x = msg.pose.position.x
+                        y = msg.pose.position.y
+                        pose_arr1 = np.append(pose_arr1,[[t, x, y, orientation1_yaw]], axis=0)
+                    if(channel.topic == "/lexus3/gps/duro/navsatfix"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        cov1 = msg.position_covariance[0]
+                        cov2 = msg.position_covariance[4]
+                        cov3 = msg.position_covariance[8]
+                        cov_arr1 = np.append(cov_arr1,  [[t,cov1,cov2,cov3]], axis=0)
+                    if(channel.topic == "/nissan9/gps/duro/navsatfix"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        cov1 = msg.position_covariance[0]
+                        cov2 = msg.position_covariance[4]
+                        cov3 = msg.position_covariance[8]
+                        cov_arr2 = np.append(cov_arr2,  [[t,cov1,cov2,cov3]], axis=0)
+                    if(channel.topic == "/nissan9/gps/duro/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        quat1 = msg.pose.orientation
+                        orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
+                        pose_arr2 = np.append(pose_arr2,[[t, msg.pose.position.x, msg.pose.position.y, orientation1_yaw]], axis=0)
 
                 i_a += 1
         pos_arr1_interp = np.empty((0,4))
