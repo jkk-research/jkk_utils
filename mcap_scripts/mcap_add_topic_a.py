@@ -18,6 +18,8 @@
 from mcap_ros2.decoder import DecoderFactory
 from mcap_ros2.writer import Writer as McapWriter
 from mcap.reader import make_reader
+import math
+from math import sin, cos, pi
 import sys
 
 
@@ -51,6 +53,45 @@ float64 z
 float64 w"""
 
 
+def euler_to_quaternion(roll, pitch, yaw):
+    qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2)
+    qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2)
+    qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2)
+    qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2)
+    return qx, qy, qz, qw
+
+def add_tf_static(writer, schema_tf, first_log_time, seq_new, frame_id, child_frame_id, x_pos=0.0, y_pos=0.0, z_pos=0.0, roll=0.0, pitch=0.0, yaw=0.0):
+    first_log_time_sec = first_log_time // 1000000000
+    first_log_time_nsec = first_log_time % 1000000000
+    qx, qy, qz, qw = euler_to_quaternion(roll, pitch, yaw)
+    try:
+        seq_new += 1
+        writer.write_message(
+            topic="/tf_static",
+            schema=schema_tf,
+            message={
+                "transforms": [
+                    {
+                        "header": {
+                            "stamp": {"sec": first_log_time_sec, "nanosec": first_log_time_nsec},
+                            "frame_id": frame_id,
+                        },
+                        "child_frame_id": child_frame_id,
+                        "transform": {
+                            "translation": {"x": x_pos, "y": y_pos, "z": z_pos},
+                            "rotation": {"x": qx, "y": qy, "z": qz, "w": qw},
+                        },
+                    }
+                ]
+            },
+            log_time=first_log_time,
+            publish_time=first_log_time,
+            sequence=seq_new,
+        )
+    except:
+        print("Unexpected error TF: %s (%s)" % (sys.exc_info()[0], "/tf_static"))
+    return seq_new
+
 
 def read_mcap_channels(source_file):
     """Reads all channels from an MCAP file."""
@@ -69,7 +110,7 @@ def read_mcap_channels(source_file):
             channel.append(c)
             message.append(m)
             ros_msg.append(r)
-    print("Read %d channels from %s" % (len(channels), source_file))
+    print("Read %d channels from %s. \nDone." % (len(channels), source_file))
     return schema, channel, message, ros_msg
 
 def write_mcap_channels(destination_file, schema, channel, message, ros_msg):
@@ -79,50 +120,26 @@ def write_mcap_channels(destination_file, schema, channel, message, ros_msg):
         writer = McapWriter(dest)
         schema_tf = writer.register_msgdef(SCHEMA_NAME_TF, SCHEMA_TEXT_TF)
         for m in message:
-            # first log time
+            first_log_time = m.log_time
             first_log_time_sec = m.log_time // 1000000000
             first_log_time_nsec = m.log_time % 1000000000
             print("First log time: %d.%d" % (first_log_time_sec, first_log_time_nsec))
             break    
         seq_new = 0
         # add extra static TFs
-        # TODO: https://github.com/jkk-research/lexus_bringup/blob/main/launch/tf_static.launch.py
-        try:
-            seq_new += 1
-            writer.write_message(
-                topic="/tf_static",
-                schema=schema_tf,
-                message={"transforms": [{"header": {
-                            "stamp": {"sec": first_log_time_sec, "nanosec": first_log_time_nsec },
-                            "frame_id": "lexus3/base_link",},
-                        "child_frame_id": "lexus3/os_center_a_laser_data_frame",
-                        "transform": {"translation": {"x": 1.53, "y": -0.5, "z": 1.41},
-                            "rotation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
-                        }, } ] },
-                log_time=m.log_time,
-                publish_time=m.log_time,
-                sequence=seq_new,
-            )
-        except:
-            print("Unexpected error TF: %s (%s)" % (sys.exc_info()[0], "/tf_static"))
-        try:
-            seq_new += 1
-            writer.write_message(
-                topic="/tf_static",
-                schema=schema_tf,
-                message={"transforms": [{"header": {
-                            "stamp": {"sec": first_log_time_sec, "nanosec": first_log_time_nsec },
-                            "frame_id": "map",},
-                        "child_frame_id": "map_zala_0",
-                        "transform": {"translation": {"x": 639770.0, "y": 639770.0, "z": 0.0},
-                            "rotation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
-                        }, } ] },
-                log_time=m.log_time,
-                publish_time=m.log_time,
-                sequence=seq_new,
-            )
-        except:
-            print("Unexpected error TF: %s (%s)" % (sys.exc_info()[0], "/tf_static"))    
+        # https://github.com/jkk-research/lexus_bringup/blob/main/launch/tf_static.launch.py
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "map", "map_zala_0", 639770.0, 5195040.0)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "map", "map_gyor_0", 697237.0, 5285644.0)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/gps", "lexus3/base_link", -1.542, -0.49, -1.479, 0.0, 0.0, 0.0)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_center_a_laser_data_frame", 0.75, 0.0, 1.91, 0.0, 0.0, pi) #
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_center_a", 0.75, 0.0, 1.91)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_left_a_laser_data_frame", 0.75, 0.5, 1.3, 0.0, 0.0, pi) #
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_left_a", 0.75, 0.5, 1.3)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_right_a_laser_data_frame", 0.75, -0.5, 1.3, 0.0, 0.0, pi) #
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/os_right_a", 0.75, -0.5, 1.3)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/ground_link", 0.0, 0.0, -0.37, 0.0, 0.0, 0.0)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/duro_gps", 1.6, 0.0, 0.2, 0.0, 0.0, 0.0)
+        seq_new = add_tf_static(writer, schema_tf, first_log_time, seq_new, "lexus3/base_link", "lexus3/_left_camera_frame", 1.6, 0.0, 1.286, 0.0, 0.0, 0.0)
         for s, c, m, r in zip(schema, channel, message, ros_msg):
             seq_new += 1
             # print("Writing message to %s %s" % (c.topic, s.data))
@@ -152,7 +169,7 @@ def write_mcap_channels(destination_file, schema, channel, message, ros_msg):
                                         "stamp": {"sec": r.header.stamp.sec, "nanosec": r.header.stamp.nanosec },
                                         "frame_id": "map",
                                     },
-                                    "child_frame_id": "lexus3/base_link",
+                                    "child_frame_id": "lexus3/gps",
                                     "transform": {
                                         "translation": {"x": r.pose.position.x, "y": r.pose.position.y, "z": r.pose.position.z},
                                         "rotation": {"x": r.pose.orientation.x, "y": r.pose.orientation.y, "z": r.pose.orientation.z, "w": r.pose.orientation.w},
