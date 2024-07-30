@@ -43,7 +43,7 @@ def main():
 
     # list all *.mcap in /mnt/c/Users/he/Downloads
     # directory = "/mnt/c/Users/he/Downloads"
-    directory = "C:/database/DT_SZE/1_meres/1_beallas/3_2_target_koze/h1"
+    directory = "C:/database/DT_SZE/5_meres/1_beallas/1_1"
     import os
     for filename in os.listdir(directory):
         if filename.endswith(".mcap"):
@@ -136,14 +136,14 @@ def main():
                     if(channel.topic == "/lexus3/vehicle_speed_kmph"):
                         t = message.log_time / 1000000000 ## convert to seconds
                         speed_arr1 = np.append(speed_arr1,[[t, msg.data/3.6]], axis=0)
-                    if(channel.topic == "/lexus3/gps/duro/current_pose"):
+                    if(channel.topic == "/lexus3/gps/nova/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         quat1 = msg.pose.orientation
                         orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
                         x = msg.pose.position.x
                         y = msg.pose.position.y
                         pose_arr1 = np.append(pose_arr1,[[t, x, y, orientation1_yaw]], axis=0)
-                    if(channel.topic == "/lexus3/gps/duro/navsatfix"):
+                    if(channel.topic == "/lexus3/gps/nova/navsatfix"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         cov1 = msg.position_covariance[0]
                         cov2 = msg.position_covariance[4]
@@ -154,13 +154,13 @@ def main():
                     if(channel.topic == "/nissan9/vehicle_speed"):
                         t = message.log_time / 1000000000 ## convert to seconds
                         speed_arr2 = np.append(speed_arr2,[[t, msg.data]], axis=0)
-                    if(channel.topic == "/nissan9/gps/duro/navsatfix"):
+                    if(channel.topic == "/nissan9/gps/nova/navsatfix"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         cov1 = msg.position_covariance[0]
                         cov2 = msg.position_covariance[4]
                         cov3 = msg.position_covariance[8]
                         cov_arr2 = np.append(cov_arr2,  [[t,cov1,cov2,cov3]], axis=0)
-                    if(channel.topic == "/nissan9/gps/duro/current_pose"):
+                    if(channel.topic == "/nissan9/gps/nova/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         quat1 = msg.pose.orientation
                         orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
@@ -193,10 +193,9 @@ def main():
 
         # ego - Lexus signal interpolation
         if pose_arr1.size != 0:
-            save_path_pose_arr1 = input[:-5]  + "_posearr.csv"
-            f1 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
-            f2 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 2], axis=0, bounds_error=False, fill_value="extrapolate")
-            f3 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 3], axis=0, bounds_error=False, fill_value="extrapolate")
+            f1 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 1], axis=0, bounds_error=False, fill_value=0)
+            f2 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 2], axis=0, bounds_error=False, fill_value=0)
+            f3 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 3], axis=0, bounds_error=False, fill_value=0)
 
             for t in time:
                 pos_arr1_interp = np.append(pos_arr1_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
@@ -300,7 +299,6 @@ def main():
 
         # target 2 - golf signal interpolation
         if pose_arr3.size != 0:
-            save_path_pose_arr1 = input[:-5]  + "_posearr.csv"
             f1 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
             f2 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 2], axis=0, bounds_error=False, fill_value="extrapolate")
             f3 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 3], axis=0, bounds_error=False, fill_value="extrapolate")
