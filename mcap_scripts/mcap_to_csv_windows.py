@@ -43,7 +43,7 @@ def main():
 
     # list all *.mcap in /mnt/c/Users/he/Downloads
     # directory = "/mnt/c/Users/he/Downloads"
-    directory = "C:\\Users\\he\\Downloads\\"
+    directory = "C:/database/DT_SZE/1_meres/1_beallas/3_2_target_koze/h1"
     import os
     for filename in os.listdir(directory):
         if filename.endswith(".mcap"):
@@ -83,6 +83,8 @@ def main():
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                     if(channel.topic == "/nissan9/gps/duro/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if(channel.topic == "/golf/vectornav/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                     if (t0==0):
                         t0 = t
                         t1 = t
@@ -113,7 +115,10 @@ def main():
         pose_arr3 = np.empty((0,4))
         cov_arr1 = np.empty((0,4))
         cov_arr2 = np.empty((0,4))
-        speed_arr1 = np.empty((0,2))
+        cov_arr3 = np.empty((0,4)) 
+        speed_arr1 = np.empty((0,2)) # ego - Lexus
+        speed_arr2 = np.empty((0,2)) # target 1 - Leaf
+        speed_arr3 = np.empty((0,2)) # target 2 - Golf
 
         t = 0
         
@@ -124,12 +129,13 @@ def main():
                 if(first_run):
                     timestamp_start = message.log_time
                     first_run = False
-                if (i_a % 100 == 0): 
-                    print("processing message %d" % i_a)
+                #if (i_a % 100 == 0): 
+                #    print("processing message %d" % i_a)
                 if (i_a % 1 == 0): # resample if necessary, 1 is no resampling
-                    if(channel.topic == "/nissan9/vehicle_speed"):
+                    # ego - Lexus signals
+                    if(channel.topic == "/lexus3/vehicle_speed_kmph"):
                         t = message.log_time / 1000000000 ## convert to seconds
-                        speed_arr1 = np.append(speed_arr1,[[t, msg.data]], axis=0)
+                        speed_arr1 = np.append(speed_arr1,[[t, msg.data/3.6]], axis=0)
                     if(channel.topic == "/lexus3/gps/duro/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         quat1 = msg.pose.orientation
@@ -143,6 +149,11 @@ def main():
                         cov2 = msg.position_covariance[4]
                         cov3 = msg.position_covariance[8]
                         cov_arr1 = np.append(cov_arr1,  [[t,cov1,cov2,cov3]], axis=0)
+
+                    # target 1 - leaf signals
+                    if(channel.topic == "/nissan9/vehicle_speed"):
+                        t = message.log_time / 1000000000 ## convert to seconds
+                        speed_arr2 = np.append(speed_arr2,[[t, msg.data]], axis=0)
                     if(channel.topic == "/nissan9/gps/duro/navsatfix"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
                         cov1 = msg.position_covariance[0]
@@ -155,12 +166,32 @@ def main():
                         orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
                         pose_arr2 = np.append(pose_arr2,[[t, msg.pose.position.x, msg.pose.position.y, orientation1_yaw]], axis=0)
 
+                    # target 2 - golf signals
+                    # NOTE: vehicle speed signal is not measured at target 2!
+                    if(channel.topic == "/golf/vectornav/fix"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        cov1 = msg.position_covariance[0]
+                        cov2 = msg.position_covariance[4]
+                        cov3 = msg.position_covariance[8]
+                        cov_arr3 = np.append(cov_arr3,  [[t,cov1,cov2,cov3]], axis=0)
+                    if(channel.topic == "/golf/vectornav/current_pose"):
+                        t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                        quat1 = msg.pose.orientation
+                        orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
+                        pose_arr3 = np.append(pose_arr3,[[t, msg.pose.position.x, msg.pose.position.y, orientation1_yaw]], axis=0)
+
                 i_a += 1
         pos_arr1_interp = np.empty((0,4))
         pos_arr2_interp = np.empty((0,4))
+        pos_arr3_interp = np.empty((0,4))
         cov_arr1_interp = np.empty((0,4))
         cov_arr2_interp = np.empty((0,4))
-        speed_arr_interp = np.empty((0,2))
+        cov_arr3_interp = np.empty((0,4))
+        speed_arr1_interp = np.empty((0,2))
+        speed_arr2_interp = np.empty((0,2))
+        speed_arr3_interp = np.empty((0,2))
+
+        # ego - Lexus signal interpolation
         if pose_arr1.size != 0:
             save_path_pose_arr1 = input[:-5]  + "_posearr.csv"
             f1 = interpolate.interp1d(pose_arr1[:,0], pose_arr1[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
@@ -180,39 +211,6 @@ def main():
 
             pose_arr1 = np.empty((0,4))
             pos_arr1_interp = np.empty((0,4))
-        if pose_arr2.size != 0:
-            f1 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
-            f2 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 2], axis=0, bounds_error=False, fill_value="extrapolate")
-            f3 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 3], axis=0, bounds_error=False, fill_value="extrapolate")
-
-            for t in time:
-                pos_arr2_interp = np.append(pos_arr2_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
-
-            if(firstLoop):
-                firstLoop = False
-                arr = pos_arr2_interp
-                headers = headers + "time_target1, x_target1, y_target1, yaw_target1"
-            else:
-                headers = headers + ", time_target1, x_target1, y_target1, yaw_target1"
-                arr = np.append(arr, pos_arr2_interp, axis=-1)
-
-            pose_arr2 = np.empty((0,4))   
-            pos_arr2_interp = np.empty((0,4)) 
-        if speed_arr1.size != 0:
-            f1 = interpolate.interp1d(speed_arr1[:,0], speed_arr1[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
-            for t in time:
-                speed_arr_interp = np.append(speed_arr_interp, [[t,f1(t)]], axis=0)
-            
-            if(firstLoop):
-                firstLoop = False
-                arr = speed_arr_interp
-                headers = headers + "time_target1, speed_target1"
-            else:
-                arr = np.append(arr, speed_arr_interp, axis=-1)
-                headers = headers + ", time_target1, speed_target1"
-
-            speed_arr1 = np.empty((0,2))
-            speed_arr_interp = np.empty((0,2))
         if cov_arr1.size != 0:
             f1 = interpolate.interp1d(cov_arr1[:,0], cov_arr1[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
             f2 = interpolate.interp1d(cov_arr1[:,0], cov_arr1[:,2], axis=0, bounds_error=False, fill_value="extrapolate")
@@ -231,6 +229,56 @@ def main():
 
             cov_arr1 = np.empty((0,4))
             cov_arr1_interp = np.empty((0,4))
+        if speed_arr1.size != 0:
+            f1 = interpolate.interp1d(speed_arr1[:,0], speed_arr1[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
+            for t in time:
+                speed_arr1_interp = np.append(speed_arr1_interp, [[t,f1(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = speed_arr1_interp
+                headers = headers + "time_ego, speed_ego"
+            else:
+                arr = np.append(arr, speed_arr1_interp, axis=-1)
+                headers = headers + ", time_ego, speed_ego"
+
+            speed_arr1 = np.empty((0,2))
+            speed_arr1_interp = np.empty((0,2))
+
+        # target 1 - leaf signal interpolation    
+        if pose_arr2.size != 0:
+            f1 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
+            f2 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 2], axis=0, bounds_error=False, fill_value="extrapolate")
+            f3 = interpolate.interp1d(pose_arr2[:,0], pose_arr2[:, 3], axis=0, bounds_error=False, fill_value="extrapolate")
+
+            for t in time:
+                pos_arr2_interp = np.append(pos_arr2_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
+
+            if(firstLoop):
+                firstLoop = False
+                arr = pos_arr2_interp
+                headers = headers + "time_target1, x_target1, y_target1, yaw_target1"
+            else:
+                headers = headers + ", time_target1, x_target1, y_target1, yaw_target1"
+                arr = np.append(arr, pos_arr2_interp, axis=-1)
+
+            pose_arr2 = np.empty((0,4))   
+            pos_arr2_interp = np.empty((0,4)) 
+        if speed_arr2.size != 0:
+            f1 = interpolate.interp1d(speed_arr2[:,0], speed_arr2[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
+            for t in time:
+                speed_arr2_interp = np.append(speed_arr2_interp, [[t,f1(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = speed_arr2_interp
+                headers = headers + "time_target1, speed_target1"
+            else:
+                arr = np.append(arr, speed_arr2_interp, axis=-1)
+                headers = headers + ", time_target1, speed_target1"
+
+            speed_arr2 = np.empty((0,2))
+            speed_arr2_interp = np.empty((0,2))
         if cov_arr2.size != 0:
             f1 = interpolate.interp1d(cov_arr2[:,0], cov_arr2[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
             f2 = interpolate.interp1d(cov_arr2[:,0], cov_arr2[:,2], axis=0, bounds_error=False, fill_value="extrapolate")
@@ -242,13 +290,67 @@ def main():
             if(firstLoop):
                 firstLoop = False
                 arr = cov_arr2_interp
-                headers = headers + "time_target, covxx_target, covyy_target, covzz_target"
+                headers = headers + "time_target1, covxx_target1, covyy_target1, covzz_target1"
             else:
                 arr = np.append(arr, cov_arr2_interp, axis=-1)
-                headers = headers + ", time_target, covxx_target, covyy_target, covzz_target"
+                headers = headers + ", time_target1, covxx_target1, covyy_target1, covzz_target1"
 
             cov_arr2 = np.empty((0,4))
             cov_arr2_interp = np.empty((0,4))
+
+        # target 2 - golf signal interpolation
+        if pose_arr3.size != 0:
+            save_path_pose_arr1 = input[:-5]  + "_posearr.csv"
+            f1 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 1], axis=0, bounds_error=False, fill_value="extrapolate")
+            f2 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 2], axis=0, bounds_error=False, fill_value="extrapolate")
+            f3 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 3], axis=0, bounds_error=False, fill_value="extrapolate")
+
+            for t in time:
+                pos_arr3_interp = np.append(pos_arr3_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = pos_arr3_interp
+                headers = headers + "time_target2, x_target2, y_target2, yaw_target2"
+            else:
+                arr = np.append(arr, pos_arr3_interp, axis=-1)
+                headers = headers + ", time_target2, x_target2, y_target2, yaw_target2"
+
+            pose_arr3 = np.empty((0,4))
+            pos_arr3_interp = np.empty((0,4))
+        if cov_arr3.size != 0:
+            f1 = interpolate.interp1d(cov_arr3[:,0], cov_arr3[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
+            f2 = interpolate.interp1d(cov_arr3[:,0], cov_arr3[:,2], axis=0, bounds_error=False, fill_value="extrapolate")
+            f3 = interpolate.interp1d(cov_arr3[:,0], cov_arr3[:,3], axis=0, bounds_error=False, fill_value="extrapolate")
+            
+            for t in time:
+                cov_arr3_interp = np.append(cov_arr3_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = cov_arr3_interp
+                headers = headers + "time_target2, covxx_target2, covyy_target2, covzz_target2"
+            else:
+                arr = np.append(arr, cov_arr3_interp, axis=-1)
+                headers = headers + ", time_target2, covxx_target2, covyy_target2, covzz_target2"
+
+            cov_arr3 = np.empty((0,4))
+            cov_arr3_interp = np.empty((0,4))
+        if speed_arr3.size != 0:
+            f1 = interpolate.interp1d(speed_arr3[:,0], speed_arr3[:,1], axis=0, bounds_error=False, fill_value="extrapolate")
+            for t in time:
+                speed_arr3_interp = np.append(speed_arr3_interp, [[t,f1(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = speed_arr3_interp
+                headers = headers + "time_target2, speed_target2"
+            else:
+                arr = np.append(arr, speed_arr3_interp, axis=-1)
+                headers = headers + ", time_target2, speed_target2"
+
+            speed_arr3 = np.empty((0,2))
+            speed_arr3_interp = np.empty((0,2))
 
     print(arr.shape)
     if (arr.size!=0):
