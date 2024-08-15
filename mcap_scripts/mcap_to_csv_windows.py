@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mcap import __version__
 from scipy import interpolate
+import sys
+from pathlib import Path
 
 print(__version__)
 
@@ -43,7 +45,7 @@ def main():
 
     # list all *.mcap in /mnt/c/Users/he/Downloads
     # directory = "/mnt/c/Users/he/Downloads"
-    directory = "C:/database/DT_SZE/5_meres/1_beallas/1_1"
+    directory = Path(sys.argv[1]) # "C:/database/DT_SZE/1_meres/1_beallas/h1"
     import os
     for filename in os.listdir(directory):
         if filename.endswith(".mcap"):
@@ -51,15 +53,6 @@ def main():
             inputs.append(os.path.join(directory, filename))
         else:
             continue
-
-    # print(inputs)
-
-    # mcap_file1 = "ego_5_1_4_lexus3_2024-04-12_09-45_0.mcap"
-    # mcap_file1 = "ego_5_1_15_lexus3_2024-04-12_10-43_0.mcap"
-
-
-    # inputs.append(os.path.join(directory, mcap_file1))
-
     i = 0
     ts = 0.05
     firstLoop = True
