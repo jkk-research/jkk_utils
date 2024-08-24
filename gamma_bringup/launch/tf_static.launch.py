@@ -49,10 +49,10 @@ def generate_launch_description():
             name='MF_tf_publisher',
             output='screen',
             arguments=[
-                '--x',  '5.103', # TODO: @rudolfkrecht
+                '--x',  '5.103',
                 '--y',  '0.0',
                 '--z',  '1.35',
-                '--yaw', '0.0', # TODO: better in roll, pitch, yaw?
+                '--yaw', '0.0',
                 '--pitch', '0.0',
                 '--roll', '0.0',
 
@@ -245,6 +245,91 @@ def generate_launch_description():
 
                 '--frame-id',       ns_vehicle + '/' + 'base_link',
                 '--child-frame-id', ns_vehicle + '/' + 'TRS'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='SML_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '1.56',
+                '--y',  '1.2',
+                '--z',  '0.586',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'SML'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='SMR_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '1.56',
+                '--y',  '-1.2',
+                '--z',  '0.586',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'SMR'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='LR_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '-1.029',
+                '--y',  '1.08',
+                '--z',  '0.92',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'LR'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='RR_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '-1.029',
+                '--y',  '-1.08',
+                '--z',  '0.92',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'RR'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='MR_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '-1.313',
+                '--y',  '0.0',
+                '--z',  '0.539',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'MR'
             ],
         ),
     ])
