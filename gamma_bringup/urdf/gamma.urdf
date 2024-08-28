@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot name="gamma1">
+
+  <!-- Base link -->
+  <link name="gamma1/base_link">
+    <visual>
+        <origin xyz="3.9 0 -0.542" rpy="1.570796 0 -1.570796"/>
+        <geometry>
+            <mesh filename="package://gamma_bringup/meshes/Chassis_mtl.obj" scale="1 1 1"/>
+        </geometry>
+    </visual>
+  </link>
+
+  <!-- Head link -->
+  <link name="FRW_link">
+    <visual>
+        <origin xyz="3.9 -1.0775 0" rpy="1.570796 0 -1.570796"/>
+        <geometry>
+            <mesh filename="package://gamma_bringup/meshes/WheelAssemblyRight.obj" scale="1 1 1"/>
+        </geometry>
+    </visual>
+  </link>
+
+  <link name="FLW_link">
+    <visual>
+        <origin xyz="3.9 1.0775 0" rpy="1.570796 0 -1.570796"/>
+        <geometry>
+            <mesh filename="package://gamma_bringup/meshes/WheelAssemblyLeft.obj" scale="1 1 1"/>
+        </geometry>
+    </visual>
+  </link>
+
+  <link name="RRW_link">
+    <visual>
+        <origin xyz="0 -1.0775 0" rpy="1.570796 0 -1.570796"/>
+        <geometry>
+            <mesh filename="package://gamma_bringup/meshes/WheelAssemblyRight.obj" scale="1 1 1"/>
+        </geometry>
+    </visual>
+  </link>
+
+  <link name="RLW_link">
+    <visual>
+        <origin xyz="0 1.0775 0" rpy="1.570796 0 -1.570796"/>
+        <geometry>
+            <mesh filename="package://gamma_bringup/meshes/WheelAssemblyLeft.obj" scale="1 1 1"/>
+        </geometry>
+    </visual>
+  </link>
+
+  <!-- Joint between base_link and FRW_link -->
+  <joint name="chassis_to_FRW" type="fixed">
+    <parent link="gamma1/base_link"/>
+    <child link="FRW_link"/>
+  </joint>
+
+  <joint name="chassis_to_FLW" type="fixed">
+    <parent link="gamma1/base_link"/>
+    <child link="FLW_link"/>
+  </joint>
+
+  <joint name="chassis_to_RRW" type="fixed">
+    <parent link="gamma1/base_link"/>
+    <child link="RRW_link"/>
+  </joint>
+
+  <joint name="chassis_to_RLW" type="fixed">
+    <parent link="gamma1/base_link"/>
+    <child link="RLW_link"/>
+  </joint>
+
+</robot>
