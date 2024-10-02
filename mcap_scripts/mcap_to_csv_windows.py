@@ -63,6 +63,11 @@ def main():
     t1 = 0
     t = 0
     for input in inputs:
+        if ("golf" in input):
+            golfMeas = True
+        else:
+            golfMeas = False
+
         with open(input, "rb") as f: 
                 reader = make_reader(f, decoder_factories=[DecoderFactory()])
                 #iterate over all messages
@@ -96,6 +101,8 @@ def main():
 
                     if(channel.topic == "/golf/vectornav/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
+                    if(channel.topic == "/tf" and golfMeas):
+                        t = msg.transforms[0].header.stamp.sec + msg.transforms[0].header.stamp.nanosec / 1000000000
                     if (t0==0):
                         t0 = t
                         t1 = t
@@ -123,13 +130,19 @@ def main():
         print("opening: " + input)
         pose_arr1 = np.empty((0,4))
         pose_arr2 = np.empty((0,4))
-        pose_arr3 = np.empty((0,4))
+        orientation_arr3 = np.empty((0,2))
+        position_arr3 = np.empty((0,3))
         cov_arr1 = np.empty((0,4))
         cov_arr2 = np.empty((0,4))
         cov_arr3 = np.empty((0,4)) 
         speed_arr1 = np.empty((0,2)) # ego - Lexus
         speed_arr2 = np.empty((0,2)) # target 1 - Leaf
         speed_arr3 = np.empty((0,2)) # target 2 - Golf
+        if ("golf" in input):
+            golfMeas = True
+        else:
+            golfMeas = False
+
 
         t = 0
         
@@ -213,14 +226,21 @@ def main():
                         cov_arr3 = np.append(cov_arr3,  [[t,cov1,cov2,cov3]], axis=0)
                     if(channel.topic == "/golf/vectornav/current_pose"):
                         t = msg.header.stamp.sec + msg.header.stamp.nanosec / 1000000000
-                        quat1 = msg.pose.orientation
+                        positionx1 = msg.pose.position.x
+                        positiony1 = msg.pose.position.y
+                        positionz1 = msg.pose.position.z
+                        position_arr3 = np.append(position_arr3,[[t, positionx1, positiony1]], axis=0)
+                    if(channel.topic == "/tf" and golfMeas):
+                        t = msg.transforms[0].header.stamp.sec + msg.transforms[0].header.stamp.nanosec / 1000000000
+                        quat1 = msg.transforms[0].transform.rotation
                         orientation1_roll, orientation1_pitch, orientation1_yaw = quaternion_to_euler_angle_vectorized1(quat1.w, quat1.x, quat1.y, quat1.z)
-                        pose_arr3 = np.append(pose_arr3,[[t, msg.pose.position.x, msg.pose.position.y, orientation1_yaw]], axis=0)
+                        orientation_arr3 = np.append(orientation_arr3,[[t, orientation1_yaw]], axis=0)                       
 
                 i_a += 1
         pos_arr1_interp = np.empty((0,4))
         pos_arr2_interp = np.empty((0,4))
-        pos_arr3_interp = np.empty((0,4))
+        position_arr3_interp = np.empty((0,3))
+        orientation_arr3_interp = np.empty((0,2))
         cov_arr1_interp = np.empty((0,4))
         cov_arr2_interp = np.empty((0,4))
         cov_arr3_interp = np.empty((0,4))
@@ -335,24 +355,39 @@ def main():
             cov_arr2_interp = np.empty((0,4))
 
         # target 2 - golf signal interpolation
-        if pose_arr3.size != 0:
-            f1 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 1], axis=0, bounds_error=False, fill_value=float("nan"))
-            f2 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 2], axis=0, bounds_error=False, fill_value=float("nan"))
-            f3 = interpolate.interp1d(pose_arr3[:,0], pose_arr3[:, 3], axis=0, bounds_error=False, fill_value=float("nan"))
+        if position_arr3.size != 0:
+            f1 = interpolate.interp1d(position_arr3[:,0], position_arr3[:, 1], axis=0, bounds_error=False, fill_value=float("nan"))
+            f2 = interpolate.interp1d(position_arr3[:,0], position_arr3[:, 2], axis=0, bounds_error=False, fill_value=float("nan"))
 
             for t in time:
-                pos_arr3_interp = np.append(pos_arr3_interp, [[t,f1(t), f2(t), f3(t)]], axis=0)
+                position_arr3_interp = np.append(position_arr3_interp, [[t, f1(t), f2(t)]], axis=0)
             
             if(firstLoop):
                 firstLoop = False
-                arr = pos_arr3_interp
-                headers = headers + "time, x_target2, y_target2, yaw_target2"
+                arr = position_arr3_interp
+                headers = headers + "time, x_target2, y_target2"
             else:
-                arr = np.append(arr, pos_arr3_interp[:,1:4], axis=-1)
-                headers = headers + ", x_target2, y_target2, yaw_target2"
+                arr = np.append(arr, position_arr3_interp[:,1:2], axis=-1)
+                headers = headers + ", x_target2, y_target2"
 
-            pose_arr3 = np.empty((0,4))
-            pos_arr3_interp = np.empty((0,4))
+            position_arr3 = np.empty((0,3))
+            position_arr3_interp = np.empty((0,3))
+        if orientation_arr3.size != 0:
+            f1 = interpolate.interp1d(orientation_arr3[:,0], orientation_arr3[:, 1], axis=0, bounds_error=False, fill_value=float("nan"))
+
+            for t in time:
+                orientation_arr3_interp = np.append(orientation_arr3_interp, [[t, f1(t)]], axis=0)
+            
+            if(firstLoop):
+                firstLoop = False
+                arr = orientation_arr3_interp
+                headers = headers + "time, yaw_target2"
+            else:
+                arr = np.column_stack([arr, orientation_arr3_interp[:,1]])
+                headers = headers + ", yaw_target2"
+
+            orientation_arr3 = np.empty((0,2))
+            orientation_arr3_interp = np.empty((0,2))
         if cov_arr3.size != 0:
             f1 = interpolate.interp1d(cov_arr3[:,0], cov_arr3[:,1], axis=0, bounds_error=False, fill_value=float("nan"))
             f2 = interpolate.interp1d(cov_arr3[:,0], cov_arr3[:,2], axis=0, bounds_error=False, fill_value=float("nan"))
