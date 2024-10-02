@@ -13,7 +13,7 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {"file_dir": "/mnt/bag/waypoints"},
-                {"file_name": "gyor07durosingle.csv"},
+                {"file_name": "gyor09kocka.csv"},
                 {"per_waypoint_display": 5}, # display speed every 5th waypoint 
             ],
         )
