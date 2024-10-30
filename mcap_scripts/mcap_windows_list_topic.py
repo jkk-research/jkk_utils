@@ -16,6 +16,7 @@ from mcap.reader import make_reader
 
 def main():
     with open('C:\\Users\\he\\Downloads\\t1_nissan_scenario_5_1_6_2024-04-12_09-52_0.mcap', "rb") as f:
+    # with open('/mnt/c/bag/lexus3-2024-04-05-gyor.mcap', "rb") as f:
         reader = make_reader(f, decoder_factories=[DecoderFactory()])
         #list all topics and types
         channels = reader.get_summary().channels.items()
