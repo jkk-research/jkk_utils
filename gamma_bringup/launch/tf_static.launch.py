@@ -52,12 +52,12 @@ def generate_launch_description():
             name='MF_tf_publisher',
             output='screen',
             arguments=[
-                '--x',  '5.103',
+                '--x',  '5.234',
                 '--y',  '0.0',
-                '--z',  '1.35',
+                '--z',  '1.083',
                 '--yaw', '0.0',
                 '--pitch', '0.0',
-                '--roll', '0.0',
+                '--roll', ' 2.216568',
 
                 '--frame-id',       ns_vehicle + '/' + 'base_link',
                 '--child-frame-id', ns_vehicle + '/' + 'MF'
