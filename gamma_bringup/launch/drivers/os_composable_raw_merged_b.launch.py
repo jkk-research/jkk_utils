@@ -14,9 +14,9 @@ def generate_launch_description():
     Generate launch description for running ouster_ros components in a single
     process/container.
     """
-    NAMESPACE = "lexus3"
+    NAMESPACE = "gamma1"
 
-    pkg_dir = get_package_share_directory('lexus_bringup')
+    pkg_dir = get_package_share_directory('gamma_bringup')
     params_file_path = Path(pkg_dir) / 'launch' / 'drivers' / 'ouster_config_b.yaml'
     merger_params_file_path = Path(pkg_dir) / 'launch' / 'drivers' / 'ouster_config_comp_b.yaml'
 
@@ -37,14 +37,14 @@ def generate_launch_description():
 
     ouster_ns = LaunchConfiguration(NAMESPACE)
     ouster_ns_arg = DeclareLaunchArgument(
-        'ouster_ns', default_value='lexus3')
+        'ouster_ns', default_value='gamma1')
 
 
     os_left_sensor = ComposableNode(
         package='ouster_ros',
         plugin='ouster_ros::OusterSensor',
         name='os_driver',
-        namespace='lexus3/os_left',
+        namespace='gamma1/os_left',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -53,7 +53,7 @@ def generate_launch_description():
         package='ouster_ros',
         plugin='ouster_ros::OusterCloud',
         name='os_cloud',
-        namespace='lexus3/os_left',
+        namespace='gamma1/os_left',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -62,7 +62,7 @@ def generate_launch_description():
         package='ouster_ros',
         plugin='ouster_ros::OusterSensor',
         name='os_driver',
-        namespace='lexus3/os_right',
+        namespace='gamma1/os_right',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -71,7 +71,7 @@ def generate_launch_description():
         package='ouster_ros',
         plugin='ouster_ros::OusterCloud',
         name='os_cloud',
-        namespace='lexus3/os_right',
+        namespace='gamma1/os_right',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -80,7 +80,7 @@ def generate_launch_description():
         package='ouster_ros',
         plugin='ouster_ros::OusterSensor',
         name='os_driver',
-        namespace='lexus3/os_center',
+        namespace='gamma1/os_center',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -89,7 +89,7 @@ def generate_launch_description():
         package='ouster_ros',
         plugin='ouster_ros::OusterCloud',
         name='os_cloud',
-        namespace='lexus3/os_center',
+        namespace='gamma1/os_center',
         parameters=[params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -99,7 +99,7 @@ def generate_launch_description():
         plugin='merger::OusterPCLMerger',
         # executable from `rclcpp_components_register_node` (CMakeLists.txt)
         name='os_pcl_merger_node',
-        namespace='lexus3',
+        namespace='gamma1',
         parameters=[merger_params_file],
         extra_arguments=[{'use_intra_process_comms': True}],
     )
@@ -111,15 +111,15 @@ def generate_launch_description():
         executable='component_container_mt',
         composable_node_descriptions=[
             os_left_sensor,
-            os_right_sensor,
             os_left_cloud,
+            os_right_sensor,
             os_right_cloud,
             os_center_sensor,
             os_center_cloud,
             os_pcl_merger,
         ],
         output='screen',
-        arguments=['--ros-args', '--log-level', 'INFO'],
+        arguments=['--ros-args', '--log-level', 'DEBUG'],
     )
 
     def invoke_lifecycle_cmd(node_name, verb):
@@ -129,12 +129,12 @@ def generate_launch_description():
             shell=True
         )
 
-    sensor_left_configure_cmd = invoke_lifecycle_cmd('lexus3/os_left/os_driver', 'configure')
-    sensor_left_activate_cmd = invoke_lifecycle_cmd('lexus3/os_left/os_driver', 'activate')
-    sensor_right_configure_cmd = invoke_lifecycle_cmd('lexus3/os_right/os_driver', 'configure')
-    sensor_right_activate_cmd = invoke_lifecycle_cmd('lexus3/os_right/os_driver', 'activate')
-    sensor_center_configure_cmd = invoke_lifecycle_cmd('lexus3/os_center/os_driver', 'configure')
-    sensor_center_activate_cmd = invoke_lifecycle_cmd('lexus3/os_center/os_driver', 'activate')
+    sensor_left_configure_cmd = invoke_lifecycle_cmd('gamma1/os_left/os_driver', 'configure')
+    sensor_left_activate_cmd = invoke_lifecycle_cmd('gamma1/os_left/os_driver', 'activate')
+    sensor_right_configure_cmd = invoke_lifecycle_cmd('gamma1/os_right/os_driver', 'configure')
+    sensor_right_activate_cmd = invoke_lifecycle_cmd('gamma1/os_right/os_driver', 'activate')
+    sensor_center_configure_cmd = invoke_lifecycle_cmd('gamma1/os_center/os_driver', 'configure')
+    sensor_center_activate_cmd = invoke_lifecycle_cmd('gamma1/os_center/os_driver', 'activate')
     
 
     return LaunchDescription([

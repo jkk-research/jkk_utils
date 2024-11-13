@@ -1,4 +1,4 @@
-#include "lexus_bringup/pcl_merger.hpp"
+#include "gamma_bringup/pcl_merger.hpp"
 
 using namespace std::chrono_literals;
 
@@ -138,6 +138,18 @@ namespace merger
 
         // callback and other func signatures (and def. temporarily)
         void callbackCommon(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& msg, int index) {
+
+            std::cout << "QoS Configuration:" << std::endl;
+            std::cout << "History: " << (qos_profile.history == RMW_QOS_POLICY_HISTORY_KEEP_LAST ? "KEEP_LAST" : "KEEP_ALL") << std::endl;
+            std::cout << "Depth: " << qos_profile.depth << std::endl;
+            std::cout << "Reliability: " << (qos_profile.reliability == RMW_QOS_POLICY_RELIABILITY_RELIABLE ? "RELIABLE" : "BEST_EFFORT") << std::endl;
+            std::cout << "Durability: " << (qos_profile.durability == RMW_QOS_POLICY_DURABILITY_VOLATILE ? "VOLATILE" : "TRANSIENT_LOCAL") << std::endl;
+            std::cout << "Deadline: " << (qos_profile.deadline.sec + qos_profile.deadline.nsec * 1e-9) << " seconds" << std::endl;
+            std::cout << "Lifespan: " << (qos_profile.lifespan.sec + qos_profile.lifespan.nsec * 1e-9) << " seconds" << std::endl;
+            std::cout << "Liveliness: " << (qos_profile.liveliness == RMW_QOS_POLICY_LIVELINESS_AUTOMATIC ? "AUTOMATIC" : "MANUAL_BY_TOPIC") << std::endl;
+            std::cout << "Liveliness lease duration: " << (qos_profile.liveliness_lease_duration.sec + qos_profile.liveliness_lease_duration.nsec * 1e-9) << " seconds" << std::endl;
+
+
             pcl::fromROSMsg(*msg, *pcl_ptr_list[index]);
             try
             {

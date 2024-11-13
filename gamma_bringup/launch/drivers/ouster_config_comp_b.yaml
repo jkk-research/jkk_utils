@@ -1,9 +1,9 @@
-lexus3/os_pcl_merger_node:
+gamma1/os_pcl_merger_node:
   ros__parameters:
-    topics: ["/lexus3/os_left/points","/lexus3/os_right/points", "/lexus3/os_center/points"]
-    frames: ["lexus3/os_left_a", "lexus3/os_right_a", "lexus3/os_center_a"]
+    topics: ["/gamma1/os_left/points","/gamma1/os_right/points", "/gamma1/os_center/points"]
+    frames: ["gamma1/LF", "gamma1/RF", "gamma1/MF"]
     child_frames: ["null", "null"]
-    target_frame: "lexus3/os_center_a"
+    target_frame: "gamma1/LF"
     pub_topic_name: "sensing/lidar/concatenated/pointcloud"
     merger_freq: 20.0
 

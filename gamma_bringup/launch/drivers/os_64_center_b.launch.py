@@ -29,7 +29,7 @@ def generate_launch_description():
     Generate launch description for running ouster_ros components separately each
     component will run in a separate process).
     """
-    lexus_ros_pkg_dir = get_package_share_directory('lexus_bringup')
+    lexus_ros_pkg_dir = get_package_share_directory('gamma_bringup')
     default_params_file = \
         Path(lexus_ros_pkg_dir) / 'launch' / 'drivers' / 'ouster_config_b.yaml'
     params_file = LaunchConfiguration('params_file')
@@ -39,7 +39,7 @@ def generate_launch_description():
                                             description='name or path to the parameters file to use.')
 
     ouster_ns = LaunchConfiguration('ouster_ns')
-    ouster_ns_arg = DeclareLaunchArgument('ouster_ns', default_value='lexus3/os_center')
+    ouster_ns_arg = DeclareLaunchArgument('ouster_ns', default_value='gamma1/os_center')
 
 
     os_driver = LifecycleNode(
@@ -72,7 +72,7 @@ def generate_launch_description():
         OnStateTransition(
             target_lifecycle_node=os_driver, goal_state='inactive',
             entities=[
-                LogInfo(msg="os_driver activating... lexus3/os_center"),
+                LogInfo(msg="os_driver activating... gamma1/os_center"),
                 EmitEvent(event=ChangeState(
                     lifecycle_node_matcher=matches_action(os_driver),
                     transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
@@ -130,7 +130,7 @@ def generate_launch_description():
     return launch.LaunchDescription([
         GroupAction(
             actions=[
-                PushRosNamespace('lexus3/os_center'),
+                PushRosNamespace('gamma1/os_center'),
                 params_file_arg,
                 ouster_ns_arg,
                 os_driver,
