@@ -95,7 +95,7 @@ def generate_launch_description():
     )
 
     os_pcl_merger = ComposableNode(
-        package='lexus_bringup',
+        package='gamma_bringup',
         plugin='merger::OusterPCLMerger',
         # executable from `rclcpp_components_register_node` (CMakeLists.txt)
         name='os_pcl_merger_node',
@@ -119,7 +119,7 @@ def generate_launch_description():
             os_pcl_merger,
         ],
         output='screen',
-        arguments=['--ros-args', '--log-level', 'DEBUG'],
+        arguments=['--ros-args', '--log-level', 'INFO'],
     )
 
     def invoke_lifecycle_cmd(node_name, verb):
