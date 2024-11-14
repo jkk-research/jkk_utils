@@ -52,12 +52,12 @@ def generate_launch_description():
             name='MF_tf_publisher',
             output='screen',
             arguments=[
-                '--x',  '5.103',
+                '--x',  '5.234',
                 '--y',  '0.0',
-                '--z',  '1.35',
+                '--z',  '1.083',
                 '--yaw', '0.0',
-                '--pitch', '0.0',
-                '--roll', '0.0',
+                '--pitch', '0.603884',
+                '--roll', '3.141592',
 
                 '--frame-id',       ns_vehicle + '/' + 'base_link',
                 '--child-frame-id', ns_vehicle + '/' + 'MF'
@@ -70,9 +70,9 @@ def generate_launch_description():
             output='screen',
             arguments=[
                 '--x',  '5.0',
-                '--y',  '1.1',
+                '--y',  '1.105',
                 '--z',  '0.701',
-                '--yaw', '0.0', 
+                '--yaw', '0.96', 
                 '--pitch', '0.0',
                 '--roll', '0.0',
 
@@ -87,9 +87,9 @@ def generate_launch_description():
             output='screen',
             arguments=[
                 '--x',  '5.0',
-                '--y',  '-1.1',
+                '--y',  '-1.0',
                 '--z',  '0.701',
-                '--yaw', '0.0', 
+                '--yaw', '-0.94', 
                 '--pitch', '0.0',
                 '--roll', '0.0',
 

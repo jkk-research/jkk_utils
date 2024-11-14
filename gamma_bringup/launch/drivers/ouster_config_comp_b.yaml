@@ -30,4 +30,4 @@ gamma1/os_pcl_merger_node:
       
       negative: true  # Set to true to invert the CropBox filter, filtering points inside the defined box.
       
-      apply: true     # Set to true to apply the filter (on / off switch)
+      apply: false     # Set to true to apply the filter (on / off switch)
