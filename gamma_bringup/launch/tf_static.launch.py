@@ -148,23 +148,7 @@ def generate_launch_description():
                 '--child-frame-id', ns_vehicle + '/' + 'TMF'
             ],
         ),
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='TLF_tf_publisher',
-            output='screen',
-            arguments=[
-                '--x',  '2.9',
-                '--y',  '0.73',
-                '--z',  '2.150',
-                '--yaw', '0.0', 
-                '--pitch', '0.0',
-                '--roll', '0.0',
-
-                '--frame-id',       ns_vehicle + '/' + 'base_link',
-                '--child-frame-id', ns_vehicle + '/' + 'TLF'
-            ],
-        ),
+        
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -333,6 +317,61 @@ def generate_launch_description():
 
                 '--frame-id',       ns_vehicle + '/' + 'base_link',
                 '--child-frame-id', ns_vehicle + '/' + 'MR'
+            ],
+        ),
+
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='duro_gps_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '1.58',
+                '--y',  '0.775',
+                '--z',  '2.46',
+                '--qx', '0.0',
+                '--qy', '0.0',
+                '--qz', '0.0',
+                '--qw', '1.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'TRR'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='base_gps_tf_publisher',
+            output='screen',
+            # https://raw.githubusercontent.com/wiki/szenergy/szenergy-public-resources/img/2022.L.01.svg
+            # TODO
+            arguments=[
+                '--x',     '-2.86', ## Based on Novatel Application Suite By default, INS position is reported at the centre of the IMU. (Set to IMU)
+                '--y',     '-0.775',
+                '--z',     '-2.46.',
+                '--yaw',   '0.0',
+                '--pitch', '0.0',
+                '--roll',  '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'gps',
+                '--child-frame-id', ns_vehicle + '/' + 'base_link'
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='MF_united_tf_publisher',
+            output='screen',
+            arguments=[
+                '--x',  '5.234',
+                '--y',  '0.0',
+                '--z',  '1.083',
+                '--yaw', '0.0', 
+                '--pitch', '0.0',
+                '--roll', '0.0',
+
+                '--frame-id',       ns_vehicle + '/' + 'base_link',
+                '--child-frame-id', ns_vehicle + '/' + 'MF_united'
             ],
         ),
         Node(

@@ -1,9 +1,9 @@
 gamma1/os_pcl_merger_node:
   ros__parameters:
-    topics: ["/gamma1/os_left/points","/gamma1/os_right/points", "/gamma1/os_center/points"]
-    frames: ["gamma1/LF", "gamma1/RF", "gamma1/MF"]
+    topics: ["/gamma1/os_center/points","/gamma1/os_left/points","/gamma1/os_right/points" ]
+    frames: ["gamma1/TMF", "gamma1/LF", "gamma1/RF"]
     child_frames: ["null", "null"]
-    target_frame: "gamma1/LF"
+    target_frame: "gamma1/TMF"
     pub_topic_name: "sensing/lidar/concatenated/pointcloud"
     merger_freq: 20.0
 
