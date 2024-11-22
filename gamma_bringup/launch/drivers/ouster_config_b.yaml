@@ -1,0 +1,66 @@
+gamma1/os_center/os_driver:
+  ros__parameters:
+    sensor_hostname: '192.168.5.31' # 'os-122220004361.local'
+    udp_dest: '192.168.5.1'
+    mtp_dest: ''
+    mtp_main: false
+    lidar_mode: '1024x20'
+    timestamp_mode: 'TIME_FROM_ROS_TIME'
+    udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
+    metadata: ''
+    lidar_port: 7505
+    imu_port: 7504
+    sensor_frame: 'gamma1/MF'
+    lidar_frame: 'gamma1/MF_center_a_laser_data_frame'
+    imu_frame: 'gamma1/MF_imu_data_frame'
+    use_system_default_qos: false    
+gamma1/os_center/os_cloud:
+  ros__parameters:
+    timestamp_mode: 'TIME_FROM_ROS_TIME'  # this value needs to match os_sensor/timestamp_mode
+    sensor_frame: 'gamma1/MF'
+    lidar_frame: 'gamma1/MF_center_a_laser_data_frame'
+    imu_frame: 'gamma1/MF_imu_data_frame'
+gamma1/os_right/os_driver:
+  ros__parameters:
+    sensor_hostname: '192.168.5.33' # 'os-122230000837.local'
+    udp_dest: '192.168.5.1'
+    mtp_dest: ''
+    mtp_main: false
+    lidar_mode: '1024x20'
+    timestamp_mode: 'TIME_FROM_ROS_TIME'
+    udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
+    metadata: ''
+    lidar_port: 7503
+    imu_port: 7502
+    sensor_frame: 'gamma1/RF'
+    lidar_frame: 'gamma1/RF_laser_data_frame'
+    imu_frame: 'gamma1/RF_imu_data_frame'
+    use_system_default_qos: false    
+gamma1/os_right/os_cloud:
+  ros__parameters:
+    timestamp_mode: 'TIME_FROM_ROS_TIME'  # this value needs to match os_sensor/timestamp_mode
+    sensor_frame: 'gamma1/RF'
+    lidar_frame: 'gamma1/RF_laser_data_frame'
+    imu_frame: 'gamma1/RF_imu_data_frame'
+gamma1/os_left/os_driver:
+  ros__parameters:
+    sensor_hostname: '192.168.5.32' # 'os-122225000519.local'
+    udp_dest: '192.168.5.1'
+    mtp_dest: ''
+    mtp_main: false
+    lidar_mode: '1024x20'
+    timestamp_mode: 'TIME_FROM_ROS_TIME'
+    udp_profile_lidar: 'RNG19_RFL8_SIG16_NIR16'
+    metadata: ''
+    lidar_port: 7507
+    imu_port: 7506
+    sensor_frame: 'gamma1/LF'
+    lidar_frame: 'gamma1/LF_laser_data_frame'
+    imu_frame: 'gamma1/LF_imu_data_frame'
+    use_system_default_qos: false
+gamma1/os_left/os_cloud:
+  ros__parameters:
+    timestamp_mode: 'TIME_FROM_ROS_TIME'  # this value needs to match os_sensor/timestamp_mode    
+    sensor_frame: 'gamma1/LF'
+    lidar_frame: 'gamma1/LF_laser_data_frame'
+    imu_frame: 'gamma1/LF_imu_data_frame'
