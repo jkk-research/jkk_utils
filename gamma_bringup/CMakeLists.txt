@@ -19,6 +19,8 @@ find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(rclcpp_components REQUIRED)  # os_pcl_merger_component
 find_package(pcl_ros REQUIRED)
+find_package(crio_msgs REQUIRED)
+find_package(pcl_conversions REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -34,7 +36,14 @@ set(ament_dependencies
   tf2_geometry_msgs
   rclcpp_components
   pcl_ros
+  crio_msgs
+  pcl_conversions
 )
+
+add_executable(publisher_node src/crio_msg_publisher.cpp)
+ament_target_dependencies(publisher_node ${ament_dependencies})
+install(TARGETS publisher_node
+  DESTINATION lib/${PROJECT_NAME})
 
 # ==== os_pcl_merger_component ====
 add_library(os_pcl_merger SHARED src/pcl_merger.cpp) # must be shared!
@@ -82,4 +91,4 @@ install(TARGETS os_pcl_merger
         RUNTIME DESTINATION bin
 )
 
-  ament_package()
+ament_package()
