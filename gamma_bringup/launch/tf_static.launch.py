@@ -49,6 +49,24 @@ def generate_launch_description():
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
+            name='gps_publisher_heading',
+            output='screen',
+            arguments=[
+                '--x',  '0.0',
+                '--y',  '0.0',
+                '--z',  '0.0',
+                '--qx', '0.0',
+                '--qy', '0.0',
+                '--qz', '0.0',
+                '--qw', '1.0',
+
+                '--frame-id',       'gamma1/duro/heading',
+                '--child-frame-id', 'gamma1/gps',
+            ],
+        ),
+        Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
             name='MF_tf_publisher',
             output='screen',
             arguments=[
