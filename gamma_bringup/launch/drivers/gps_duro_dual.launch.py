@@ -1,5 +1,10 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch.actions import  IncludeLaunchDescription
+import os
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python import get_package_share_directory
+ 
 """
 orientation_source can be gps / odom  
 - gps: orientation provided from the default gps modules 
@@ -24,6 +29,14 @@ def generate_launch_description():
     node2_id = "/gps/duro/hea"
 
     return LaunchDescription([
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(get_package_share_directory('gamma_bringup'),
+                'launch/tf_static.launch.py')
+            )
+        ),
+
         Node(
             package="duro_gps_driver",
             executable="duro_node",
@@ -80,6 +93,18 @@ def generate_launch_description():
                 {"publish_tf": False}, #  default is True
             ],
             namespace=ns_vehicle + node2_id,
+        ),
+         Node(
+            package='wayp_plan_tools',
+            executable='waypoint_loader',
+            name='wayp_load',
+            output='screen',
+            parameters=[
+                #{"file_dir": pkg_dir + "/csv"},
+                {"file_dir": "/home/dev/waypoints/"},
+                {"file_name": "saved_waypoints_mod.csv"},
+                {"per_waypoint_display": 5}, # display speed every 5th waypoint
+            ],
         ),
 
     ])
