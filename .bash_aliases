@@ -8,4 +8,4 @@ alias r1='screen -mdS roscore1 bash -c 'roscore' && echo "screen roscore1"'
 # wheeltec robot
 alias start_drivers='~/ros2_ws/src/drivers/shell/start_drivers.sh && echo -e " "'
 alias start_lane='~/ros2_ws/src/lane_following_cam/shell/start_lane.sh && echo -e " "'
-alias stop_all='~/ros2_ws/src/lane_following_cam/shell/stop_all.sh && echo -e " "'
+alias stop_all='~/ros2_ws/src/drivers/shell/stop_all.sh && echo -e " "'
