@@ -21,6 +21,7 @@ find_package(rclcpp_components REQUIRED)  # os_pcl_merger_component
 find_package(pcl_ros REQUIRED)
 find_package(crio_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -38,6 +39,7 @@ set(ament_dependencies
   pcl_ros
   crio_msgs
   pcl_conversions
+  visualization_msgs
 )
 
 add_executable(publisher_node src/crio_msg_publisher.cpp)

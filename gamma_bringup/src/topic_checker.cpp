@@ -2,6 +2,12 @@
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/pose_array.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+#include "crio_msgs/msg/crio_message.hpp"
 #include <chrono>
 #include <unordered_map>
 #include <unordered_set>
@@ -12,39 +18,89 @@ using namespace std::chrono_literals;
 class TopicChecker : public rclcpp::Node {
 public:
     TopicChecker() : Node("topic_checker"), all_received_(true) {
-        // Define topics and their types
-        topics_ = {
-            {"topic_name1", "std_msgs/msg/String"},
-            {"topic_name2", "std_msgs/msg/Bool"},
-            {"topic_name3", "sensor_msgs/msg/PointCloud2"},
-            {"lexus3/os_left/points", "sensor_msgs/msg/PointCloud2"}
-        };
+        this->declare_parameter<std::vector<std::string>>("topics_and_types", {});
+
+        std::vector<std::string> topics_and_types;
+        this->get_parameter("topics_and_types", topics_and_types);
+
+        if (topics_and_types.size() % 2 != 0) {
+            RCLCPP_ERROR(this->get_logger(), "The topics_and_types parameter must contain an even number of elements.");
+            return;
+        }
+
+        for (size_t i = 0; i < topics_and_types.size(); i += 2) {
+            topics_.emplace_back(topics_and_types[i], topics_and_types[i + 1]);
+        }
 
         for (const auto &topic : topics_) {
             message_received_[topic.first] = false;
             if (topic.second == "std_msgs/msg/String") {
                 subscriptions_.push_back(this->create_subscription<std_msgs::msg::String>(
                     topic.first, 10, [this, topic](const std_msgs::msg::String::SharedPtr msg) {
-                        //RCLCPP_INFO(this->get_logger(), "Received message on %s: '%s'", topic.first.c_str(), msg->data.c_str());
-                        message_received_[topic.first] = true;
+                        if (topic.first == "gamma1/gps/duro/hea/status_string" ) {
+                            if (msg->data == "Fixed RTK" || msg->data == "Float RTK") {
+                                message_received_[topic.first] = true;
+                            } else {
+                                message_received_[topic.first] = false;
+                            }
+                        } else {
+                            message_received_[topic.first] = true;
+                        }
                     }));
+
             } else if (topic.second == "std_msgs/msg/Bool") {
                 subscriptions_.push_back(this->create_subscription<std_msgs::msg::Bool>(
                     topic.first, 10, [this, topic](const std_msgs::msg::Bool::SharedPtr msg) {
-                        //RCLCPP_INFO(this->get_logger(), "Received message on %s: '%s'", topic.first.c_str(), msg->data ? "true" : "false");
                         message_received_[topic.first] = true;
                     }));
+
             } else if (topic.second == "sensor_msgs/msg/PointCloud2") {
                 subscriptions_.push_back(this->create_subscription<sensor_msgs::msg::PointCloud2>(
                     topic.first, 10, [this, topic](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
                         if (msg->data.empty()) {
-                            //RCLCPP_WARN(this->get_logger(), "Received empty PointCloud2 message on %s", topic.first.c_str());
                             message_received_[topic.first] = false;
                         } else {
-                            //RCLCPP_INFO(this->get_logger(), "Received non-empty PointCloud2 message on %s", topic.first.c_str());
                             message_received_[topic.first] = true;
                         }
                     }));
+
+            } else if (topic.second == "visualization_msgs/msg/MarkerArray") {
+                subscriptions_.push_back(this->create_subscription<visualization_msgs::msg::MarkerArray>(
+                    topic.first, 10, [this, topic](const visualization_msgs::msg::MarkerArray::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+
+            } else if (topic.second == "geometry_msgs/msg/PoseStamped") {
+                subscriptions_.push_back(this->create_subscription<geometry_msgs::msg::PoseStamped>(
+                    topic.first, 10, [this, topic](const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+                    
+            } else if (topic.second == "geometry_msgs/msg/PoseArray") {
+                subscriptions_.push_back(this->create_subscription<geometry_msgs::msg::PoseArray>(
+                    topic.first, 10, [this, topic](const geometry_msgs::msg::PoseArray::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+
+            } else if (topic.second == "std_msgs/msg/Float32") {
+                subscriptions_.push_back(this->create_subscription<std_msgs::msg::Float32>(
+                    topic.first, 10, [this, topic](const std_msgs::msg::Float32::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+
+            } else if (topic.second == "geometry_msgs/msg/Twist") {
+                subscriptions_.push_back(this->create_subscription<geometry_msgs::msg::Twist>(
+                    topic.first, 10, [this, topic](const geometry_msgs::msg::Twist::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+
+            } else if (topic.second == "crio_msgs/msg/CrioMessage") {
+                subscriptions_.push_back(this->create_subscription<crio_msgs::msg::CrioMessage>(
+                    topic.first, 10, [this, topic](const crio_msgs::msg::CrioMessage::SharedPtr msg) {
+                        message_received_[topic.first] = true;
+                    }));
+            } else {
+                RCLCPP_ERROR(this->get_logger(), "Unsupported message type: %s", topic.second.c_str());
             }
         }
 
@@ -80,6 +136,7 @@ private:
             for (const auto &topic : missing_topics_) {
                 RCLCPP_WARN(this->get_logger(), "%s", topic.c_str());
             }
+            RCLCPP_WARN(this->get_logger(), "--------");
         }
     }
 
