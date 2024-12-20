@@ -42,7 +42,12 @@ set(ament_dependencies
 
 add_executable(publisher_node src/crio_msg_publisher.cpp)
 ament_target_dependencies(publisher_node ${ament_dependencies})
+
+add_executable(topic_checker src/topic_checker.cpp)
+ament_target_dependencies(topic_checker ${ament_dependencies})
+
 install(TARGETS publisher_node
+  topic_checker
   DESTINATION lib/${PROJECT_NAME})
 
 # ==== os_pcl_merger_component ====
