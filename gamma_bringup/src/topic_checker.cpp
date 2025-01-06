@@ -17,11 +17,14 @@ using namespace std::chrono_literals;
 
 class TopicChecker : public rclcpp::Node {
 public:
-    TopicChecker() : Node("topic_checker"), all_received_(true) {
+    TopicChecker() : Node("topic_checker"), all_received_(true), check_sensors_(true) {
         this->declare_parameter<std::vector<std::string>>("topics_and_types", {});
+        this->declare_parameter<std::vector<std::string>>("sensor_topics", {});
+        this->declare_parameter<bool>("check_sensors", true);
 
         std::vector<std::string> topics_and_types;
         this->get_parameter("topics_and_types", topics_and_types);
+        this->get_parameter("check_sensors", check_sensors_);
 
         if (topics_and_types.size() % 2 != 0) {
             RCLCPP_ERROR(this->get_logger(), "The topics_and_types parameter must contain an even number of elements.");
@@ -104,18 +107,55 @@ public:
             }
         }
 
+        if (check_sensors_) {
+            std::vector<std::string> sensor_topics;
+            this->get_parameter("sensor_topics", sensor_topics);
+
+            if (sensor_topics.size() % 2 != 0) {
+                RCLCPP_ERROR(this->get_logger(), "The sensor_topics parameter must contain an even number of elements.");
+                return;
+            }
+            for (size_t i = 0; i < sensor_topics.size(); i += 2) {
+                sensor_topics_.emplace_back(sensor_topics[i], sensor_topics[i + 1]);
+            }
+
+            for (const auto &sensor_topic :  sensor_topics_) {
+                sensor_message_received_[sensor_topic.first] = false;
+
+                if (sensor_topic.second == "sensor_msgs/msg/PointCloud2") {
+                    subscriptions_.push_back(this->create_subscription<sensor_msgs::msg::PointCloud2>(
+                        sensor_topic.first, 10, [this, sensor_topic](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+                            if (msg->data.empty()) {
+                                sensor_message_received_[sensor_topic.first] = false;
+                            } else {
+                                sensor_message_received_[sensor_topic.first] = true;
+                            }
+                        }));
+                } else {
+                    RCLCPP_ERROR(this->get_logger(), "Unsupported sensor message type: %s", sensor_topic.second.c_str());
+                }
+            }
+        }
+
         publisher_ = this->create_publisher<std_msgs::msg::Bool>("aut_dat", 10);
         timer_ = this->create_wall_timer(
             1s, std::bind(&TopicChecker::check_message_status, this));
         warning_timer_ = this->create_wall_timer(
             2s, std::bind(&TopicChecker::send_warnings, this));
+        if (check_sensors_) {
+            sensor_warning_timer_ = this->create_wall_timer(
+                2s, std::bind(&TopicChecker::send_sensor_warnings, this));
+        }
         RCLCPP_INFO(this->get_logger(), "Node has been started.");
     }
 
 private:
     void check_message_status() {
         all_received_ = true;
+        sensor_all_received_ = true;
         missing_topics_.clear();
+        sensor_missing_topics_.clear();
+
         for (const auto &topic : topics_) {
             if (!message_received_[topic.first]) {
                 all_received_ = false;
@@ -124,30 +164,55 @@ private:
             message_received_[topic.first] = false; // Reset the flag for the next check
         }
 
+        if (check_sensors_) {
+            for (const auto &sensor_topic :  sensor_topics_) {
+                if (!sensor_message_received_[sensor_topic.first]) {
+                    sensor_all_received_ = false;
+                    sensor_missing_topics_.insert(sensor_topic.first);
+                }
+                sensor_message_received_[sensor_topic.first] = false; // Reset the flag for the next check
+            }
+        }
+
         auto message = std_msgs::msg::Bool();
-        message.data = all_received_;
+        message.data = all_received_ && (!check_sensors_ || sensor_missing_topics_.size() <= 1);
         publisher_->publish(message);
     }
 
     void send_warnings() {
         if (all_received_) {
-            RCLCPP_INFO(this->get_logger(), "All topics received.");
+            RCLCPP_INFO(this->get_logger(), "All necessary topics received.");
         } else {
             for (const auto &topic : missing_topics_) {
-                RCLCPP_WARN(this->get_logger(), "%s", topic.c_str());
+                RCLCPP_WARN(this->get_logger(), "Missing topic: %s", topic.c_str());
+            }
+            RCLCPP_WARN(this->get_logger(), "--------");
+        }
+    }
+
+    void send_sensor_warnings() {
+        if (!sensor_all_received_) {
+            for (const auto &sensor_topic : sensor_missing_topics_) {
+                RCLCPP_WARN(this->get_logger(), "Missing sensor topic: %s", sensor_topic.c_str());
             }
             RCLCPP_WARN(this->get_logger(), "--------");
         }
     }
 
     std::vector<std::pair<std::string, std::string>> topics_;
+    std::vector<std::pair<std::string, std::string>> sensor_topics_;
     std::unordered_map<std::string, bool> message_received_;
+    std::unordered_map<std::string, bool> sensor_message_received_;
     std::unordered_set<std::string> missing_topics_;
+    std::unordered_set<std::string> sensor_missing_topics_;
     std::vector<rclcpp::SubscriptionBase::SharedPtr> subscriptions_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr publisher_;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::TimerBase::SharedPtr warning_timer_;
+    rclcpp::TimerBase::SharedPtr sensor_warning_timer_;
     bool all_received_;
+    bool sensor_all_received_;
+    bool check_sensors_;
 };
 
 int main(int argc, char *argv[]) {

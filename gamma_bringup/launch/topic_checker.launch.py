@@ -24,7 +24,13 @@ def generate_launch_description():
                         'cmd_vel', 'geometry_msgs/msg/Twist',
                         'crio_Twist', 'geometry_msgs/msg/Twist',
                         'ctrl_cmd', 'crio_msgs/msg/CrioMessage'
-                    ]
+                    ],
+                    'sensor_topics': [
+                        'gamma1/os_right/points', 'sensor_msgs/msg/PointCloud2',
+                        'gamma1/os_left/points', 'sensor_msgs/msg/PointCloud2',
+                        'gamma1/os_center/points', 'sensor_msgs/msg/PointCloud2'
+                    ],
+                    'check_sensors': True
                 }
             ]
         )
