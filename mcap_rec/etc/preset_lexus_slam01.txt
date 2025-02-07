@@ -1,0 +1,14 @@
+/lexus3/gps/nova/fix
+/lexus3/gps/nova/current_pose
+/lexus3/os_center/points
+/lexus3/vehicle_status
+/lexus3/gps/nova/corrimudata
+/lexus3/gps/nova/imu
+/lexus3/os_center/imu
+/lexus3/os_left/imu
+/lexus3/os_right/imu
+/lexus3/zed2i/zed_node/imu/data
+/lexus3/zed2i/zed_node/imu/data_raw
+/lexus3/zed2i/zed_node/imu/mag
+/tf
+/tf_static
