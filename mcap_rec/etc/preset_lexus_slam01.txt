@@ -12,3 +12,4 @@
 /lexus3/zed2i/zed_node/imu/mag
 /tf
 /tf_static
+/imu/data
