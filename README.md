@@ -25,6 +25,14 @@ colcon build --packages-select drone_bringup time_utils gamma_bringup mcap_rec t
 source ~/ros2_ws/install/setup.bash
 ```
 
+## `bash_aliases`
+
+[bash_aliases](https://github.com/jkk-research/jkk_utils/blob/ros2/.bash_aliases)
+
+
+```bash
+cd ~; rm .bash_aliases; wget https://raw.githubusercontent.com/jkk-research/jkk_utils/ros2/.bash_aliases; exec bash
+```
 
 # Packages
 - `drone_bringup`: ROS 2 package for drone drivers and settings
