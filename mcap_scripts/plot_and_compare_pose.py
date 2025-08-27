@@ -1,5 +1,8 @@
 ## This script is runnable on Windows, and works (with slight modification) on Ubuntu and MacOS
 ## This script is used to read the mcap file and print the messages of the topics
+## Similar functionality to compare_pose_foxglove.ts (type script for Foxglove Studio)
+## https://github.com/jkk-research/jkk_utils/blob/ros2/mcap_scripts/compare_pose_foxglove.ts
+
 
 # pip install mcap mcap-ros2-support matplotlib numpy pandas
 # mcap-ros2-support works on Windows too!
