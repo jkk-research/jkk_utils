@@ -1,0 +1,6 @@
+# qos_tf.yaml
+/tf_static:
+  durability: transient_local
+  reliability: reliable
+  history: keep_last
+  depth: 1

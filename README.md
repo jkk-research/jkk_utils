@@ -34,6 +34,19 @@ source ~/ros2_ws/install/setup.bash
 cd ~; rm .bash_aliases; wget https://raw.githubusercontent.com/jkk-research/jkk_utils/ros2/.bash_aliases; exec bash
 ```
 
+## QoS overrides 
+
+```bash
+cd ~; wget https://raw.githubusercontent.com/jkk-research/jkk_utils/refs/heads/ros2/qos_tf.yaml
+```
+
+```bash
+ros2 bag play /mnt/c/bag/lexus3-2024-04-05-gyor.mcap \
+--clock --loop \
+--qos-profile-overrides-path ~/qos_tf.yaml
+```
+
+
 # Packages
 - `drone_bringup`: ROS 2 package for drone drivers and settings
 - `gamma_bringup`: ROS 2 package for Gamma Komondor drivers and settings
