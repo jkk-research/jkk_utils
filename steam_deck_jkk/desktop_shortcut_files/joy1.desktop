@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Exec=bash -ci 'source ~/ros2_ws/install/local_setup.bash && ros2 launch steam_deck_jkk joy1.launch.py &'
+Name=joy1 GUI
+Comment=ss
+Icon=/mnt/icons/icon04.png
+Name[en_US]=joy1.desktop

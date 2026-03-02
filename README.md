@@ -18,7 +18,7 @@ cd ~/ros2_ws
 ```
 
 ``` bash
-colcon build --packages-select drone_bringup time_utils gamma_bringup mcap_rec timing_benchmark gui_teleop --symlink-install
+colcon build --packages-select drone_bringup time_utils gamma_bringup mcap_rec timing_benchmark gui_teleop steam_deck_jkk --symlink-install
 ```
 
 ``` bash
@@ -54,6 +54,7 @@ ros2 bag play /mnt/c/bag/lexus3-2024-04-05-gyor.mcap \
 - `pose_repub`: Pose republisher in different format
 - `mcap_rec`: Handy mcap recorder with presets
 - `timing_benchmark`: Measure time delays in ROS 2
+- `steam_deck_jkk`: Steam Deck specific utilities
 - `gui_teleop`: GUI for teleoperation and visualization 
 - `demo_jkk`: Various demonstration related launch files and nodes
 
