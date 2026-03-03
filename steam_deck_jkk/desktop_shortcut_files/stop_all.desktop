@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Exec=bash -ci '/home/deck/ros2_ws/src/jkk_utils/steam_deck_jkk/shell/stop_all.sh'
+Name=stop_all
+Comment=ss
+Icon=/home/deck/ros2_ws/src/jkk_utils/steam_deck_jkk/img/icon02.png
+Name[en_US]=stop_all.desktop
