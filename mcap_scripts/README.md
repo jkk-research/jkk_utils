@@ -2,6 +2,8 @@
 
 Some handy `MCAP` scripts for data manipulation.
 
+![Static Badge](https://img.shields.io/badge/mcap-File-24d48b?style=flat-square)
+
 ## Operating System
 
 Tested on: 

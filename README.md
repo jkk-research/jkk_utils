@@ -1,8 +1,12 @@
 # jkk_utils
 (Mostly) ROS 2 utility nodes and packages.
 
-[![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5)](https://docs.ros.org/en/humble/)
+![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5?style=flat-square&logo=ros)
+![Static Badge](https://img.shields.io/badge/ROS_2-Jazzy-34aec5?style=flat-square&logo=ros)
+![Static Badge](https://img.shields.io/badge/mcap-File-24d48b?style=flat-square)
+[![Static Badge](https://img.shields.io/badge/License-GPLv3-red?style=flat-square)](https://github.com/jkk-research/jkk_utils/blob/ros2/LICENSE)
 
+#24d48b21
 # Usage
 
 ``` bash
