@@ -9,7 +9,8 @@ from mcap_ros2.decoder import DecoderFactory
 from mcap.reader import make_reader
 
 # --- Beolvasás ---
-file_name = '/mnt/c/bag/lokalizacio02_no_cam_lexus3_2026-03-06_09-37_0.mcap'
+# file_name = '/mnt/c/bag/lokalizacio06_no_cam_lexus3_2026-03-26_17-06_0.mcap'
+file_name = '/mnt/c/bag/lokalizacio07_no_cam_lexus3_2026-03-26_17-17_0.mcap'
 with open(file_name, "rb") as f:
     reader = make_reader(f, decoder_factories=[DecoderFactory()])
     channels = reader.get_summary().channels.items()
@@ -24,7 +25,7 @@ with open(file_name, "rb") as f:
     for schema, channel, message, ros_msg in reader.iter_decoded_messages():
         if channel.topic == "/lexus3/gps/nova/current_pose":
             pose_nova.append(ros_msg)
-        if channel.topic == "/localization/pose_estimator/pose":
+        if channel.topic == "/localization/pose_twist_fusion_filter/pose":
             pose_ndtp.append(ros_msg)
         if i % 1000 == 0:
             print(".", end="")
