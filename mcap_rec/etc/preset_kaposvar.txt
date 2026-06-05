@@ -9,3 +9,5 @@
 /lexus3/pacmod/vehicle_speed_rpt
 /lexus3/pacmod/steering_rpt
 /imu/data
+/lexus3/gps/nova/current_pose
+/lexus3/gps/nova/fix
