@@ -1,0 +1,7 @@
+/tf
+/tf_static
+/lexus3/os_center/points
+/lexus3/os_center/metadata
+/lexus3/camera/camera1/image_compressed
+/lexus3/camera/camera1/camera_info
+/points_color

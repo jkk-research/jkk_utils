@@ -16,7 +16,7 @@ package_path = get_package_share_directory("mcap_rec")
 # get the current path (pwd)
 current_path = os.getcwd()
 
-cmd1 = package_path + "/etc/record_mcap1.sh"
+cmd1 = package_path + "/etc/record_mcap_all.sh"
 
 # print("package_path: ", package_path)
 # print("current_path: ", current_path)

@@ -1,0 +1,14 @@
+/lexus3/gps/nova/current_pose
+/localization/pose_estimator/pose
+/localization/pose_twist_fusion_filter/biased_pose
+/localization/pose_twist_fusion_filter/pose
+/lexus3/gps/nova/current_pose_debug_original
+/lexus3/gps/nova/fix
+/localization/pose_estimator/pose
+/localization/pose_estimator/pose_with_covariance
+/sensing/gps
+/sensing/imu/data
+/tf
+/tf_static
+/vehicle/status/steering_wheel_status
+/vehicle/status/velocity_status
