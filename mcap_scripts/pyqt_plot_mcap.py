@@ -20,23 +20,27 @@ with open(file_name, "rb") as f:
     print("")
 
     i = 0
-    pose_nova = []
-    pose_ndtp = []
+    pose_nova = []  # list of (timestamp_ns, msg)
+    pose_ndtp = []  # list of (timestamp_ns, msg)
     for schema, channel, message, ros_msg in reader.iter_decoded_messages():
         if channel.topic == "/lexus3/gps/nova/current_pose":
-            pose_nova.append(ros_msg)
+            ts = ros_msg.header.stamp.sec * 1_000_000_000 + ros_msg.header.stamp.nanosec
+            pose_nova.append((ts, ros_msg))
         if channel.topic == "/localization/pose_twist_fusion_filter/pose":
-            pose_ndtp.append(ros_msg)
+            ts = ros_msg.header.stamp.sec * 1_000_000_000 + ros_msg.header.stamp.nanosec
+            pose_ndtp.append((ts, ros_msg))
         if i % 1000 == 0:
             print(".", end="")
         i += 1
 
 print(f"\nNova: {len(pose_nova)}, NDTP: {len(pose_ndtp)}")
 
-x_nova_c = np.array([p.pose.position.x for p in pose_nova])
-y_nova_c = np.array([p.pose.position.y for p in pose_nova])
-x_ndtp_i = np.array([p.pose.position.x for p in pose_ndtp])
-y_ndtp_i = np.array([p.pose.position.y for p in pose_ndtp])
+t_nova_ns = np.array([p[0] for p in pose_nova], dtype=np.float64)
+x_nova_c  = np.array([p[1].pose.position.x for p in pose_nova])
+y_nova_c  = np.array([p[1].pose.position.y for p in pose_nova])
+t_ndtp_ns = np.array([p[0] for p in pose_ndtp], dtype=np.float64)
+x_ndtp_i  = np.array([p[1].pose.position.x for p in pose_ndtp])
+y_ndtp_i  = np.array([p[1].pose.position.y for p in pose_ndtp])
 
 
 # --- Segédfüggvények ---
@@ -56,6 +60,21 @@ def compute_stats(xn, yn, xd, yd):
     dy = yn[:n] - yd[:n]
     dist = np.sqrt(dx**2 + dy**2)
     return np.mean(dx), np.mean(dy), np.mean(dist), np.std(dist)
+
+
+def umeyama_2d(src, dst):
+    """Rigid 2-D alignment (no scale). Returns R (2×2) and t (2,) such that dst ≈ R @ src + t."""
+    n = len(src)
+    src_mean = src.mean(axis=0)
+    dst_mean = dst.mean(axis=0)
+    src_c = src - src_mean
+    dst_c = dst - dst_mean
+    H = src_c.T @ dst_c / n
+    U, _, Vt = np.linalg.svd(H)
+    d = np.sign(np.linalg.det(Vt.T @ U.T))
+    R = Vt.T @ np.diag([1.0, d]) @ U.T
+    t = dst_mean - R @ src_mean
+    return R, t
 
 
 def make_slider(label_text, range_min, range_max, initial=0):
@@ -173,11 +192,12 @@ ctrl_layout.addWidget(stats_label)
 
 ctrl_layout.addStretch()
 
-# Reset + Mentés
+# Reset + Mentés + Auto align
 btn_row = QtWidgets.QHBoxLayout()
-reset_btn = QtWidgets.QPushButton("↺  Reset")
-save_btn  = QtWidgets.QPushButton("💾  Mentés (JSON)")
-for b in [reset_btn, save_btn]:
+reset_btn  = QtWidgets.QPushButton("↺  Reset")
+save_btn   = QtWidgets.QPushButton("💾  Mentés (JSON)")
+align_btn  = QtWidgets.QPushButton("⚙  Auto Align (Umeyama)")
+for b in [reset_btn, save_btn, align_btn]:
     b.setStyleSheet("font-size: 13px; padding: 6px;")
     btn_row.addWidget(b)
 ctrl_layout.addLayout(btn_row)
@@ -241,6 +261,69 @@ def on_save():
         print(f"Mentve: {fname}\n{json.dumps(params, indent=2)}")
 
 save_btn.clicked.connect(on_save)
+
+
+# --- Umeyama auto alignment ---
+def auto_align_umeyama(n_points=50):
+    """
+    Sample n_points evenly from the Nova baseline, linearly interpolate
+    NDTP at those timestamps, then use Umeyama rigid alignment to find
+    the optimal rotation + translation and apply it via the sliders.
+    """
+    if len(t_nova_ns) < n_points or len(t_ndtp_ns) < 3:
+        print("Not enough pose data for alignment.")
+        return
+
+    # Evenly spaced indices along Nova
+    indices = np.linspace(0, len(t_nova_ns) - 1, n_points, dtype=int)
+    t_sample = t_nova_ns[indices]
+    x_base   = x_nova_c[indices]
+    y_base   = y_nova_c[indices]
+
+    # Keep only timestamps within the NDTP time range
+    mask = (t_sample >= t_ndtp_ns[0]) & (t_sample <= t_ndtp_ns[-1])
+    if mask.sum() < 3:
+        print("Insufficient overlapping timestamps for Umeyama alignment "
+              f"(only {mask.sum()} of {n_points} sample points overlap).")
+        return
+
+    t_s  = t_sample[mask]
+    x_b  = x_base[mask]
+    y_b  = y_base[mask]
+
+    # Linearly interpolate NDTP positions at the sampled timestamps
+    x_interp = np.interp(t_s, t_ndtp_ns, x_ndtp_i)
+    y_interp = np.interp(t_s, t_ndtp_ns, y_ndtp_i)
+
+    src = np.column_stack([x_interp, y_interp])   # NDTP samples
+    dst = np.column_stack([x_b,      y_b     ])   # Nova  samples
+
+    R, t_uma = umeyama_2d(src, dst)
+
+    # apply_transform rotates around the centroid of the full NDTP cloud,
+    # so we must correct the translation accordingly.
+    # apply_transform: x_new = R @ (x - cx) + cx + [dx, dy]
+    #                         = R @ x + (-R @ cx + cx + [dx, dy])
+    # Umeyama:         x_new = R @ x + t_uma
+    # => [dx, dy] = t_uma + R @ cx - cx
+    cx_ndtp = np.array([np.mean(x_ndtp_i), np.mean(y_ndtp_i)])
+    t_slider = t_uma + R @ cx_ndtp - cx_ndtp
+
+    angle_deg = np.degrees(np.arctan2(R[1, 0], R[0, 0]))
+
+    print(f"Umeyama result  dx={t_slider[0]:+.3f} m  dy={t_slider[1]:+.3f} m  "
+          f"angle={angle_deg:+.4f}°  (used {mask.sum()}/{n_points} sample points)")
+
+    for s in [slider_x, slider_y, slider_r]:
+        s.blockSignals(True)
+    slider_x.setValue(int(round(t_slider[0] * 10)))
+    slider_y.setValue(int(round(t_slider[1] * 10)))
+    slider_r.setValue(int(round(angle_deg   * 100)))
+    for s in [slider_x, slider_y, slider_r]:
+        s.blockSignals(False)
+    refresh()
+
+align_btn.clicked.connect(lambda: auto_align_umeyama())
 
 
 # --- Indítás ---
