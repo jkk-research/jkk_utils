@@ -38,6 +38,9 @@ srv/_*.py
 qtcreator-*
 *.user
 
+# Python virtual environments
+*.venv
+
 /planning/cfg
 /planning/docs
 /planning/src
