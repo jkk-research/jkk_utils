@@ -1,10 +1,17 @@
-# jkk_utils
-(Mostly) ROS 2 utility nodes and packages.
+<h1 align="center">jkk_utils</h1>
 
-![Static Badge](https://img.shields.io/badge/ROS_2-Humble-34aec5?style=flat-square&logo=ros)
-![Static Badge](https://img.shields.io/badge/ROS_2-Jazzy-34aec5?style=flat-square&logo=ros)
-![Static Badge](https://img.shields.io/badge/mcap-File-24d48b?style=flat-square)
-[![Static Badge](https://img.shields.io/badge/License-GPLv3-red?style=flat-square)](https://github.com/jkk-research/jkk_utils/blob/ros2/LICENSE)
+<p align="center">
+  <b>(Mostly) ROS 2 utility nodes and packages.</b>
+</p>
+
+<p align="center">
+  <img alt="ROS 2: Humble" src="https://img.shields.io/badge/ros2-humble-34aec5?style=flat-square&logo=ros">
+  <img alt="ROS 2: Jazzy" src="https://img.shields.io/badge/ros2-jazzy-34aec5?style=flat-square&logo=ros">
+  <img alt="mcap: File" src="https://img.shields.io/badge/mcap-file-24d48b?style=flat-square">
+  <a href="https://github.com/jkk-research/jkk_utils/blob/ros2/LICENSE">
+    <img alt="License: GPLv3" src="https://img.shields.io/badge/License-GPLv3-red?style=flat-square">
+  </a>
+</p>
 
 #24d48b21
 # Usage
@@ -60,10 +67,22 @@ ros2 bag play /mnt/c/bag/lexus3-2024-04-05-gyor.mcap \
 - `timing_benchmark`: Measure time delays in ROS 2
 - `steam_deck_jkk`: Steam Deck specific utilities
 - `gui_teleop`: GUI for teleoperation and visualization 
+- `workspace_health`: GUI listing the git status (OK, Behind, Modified, Diverged...) of the GitHub repos in a workspace
 - `demo_jkk`: Various demonstration related launch files and nodes
 
 # Other directories
 - `mcap_scripts`: Data manipulation scripts for mcap
+
+# Images
+
+<p align="center">
+  <img src="workspace_health/resource/ws_health01.png" alt="rec_gui" width="600">
+</p>
+
+<p align="center">
+  <img src="steam_deck_jkk/img/steamdeck01.svg" alt="steamdeck" width="600">
+</p>
+
 
 # Related
 - https://github.com/jkk-research/docker_ros2_images

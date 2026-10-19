@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>workspace_health</name>
+  <version>0.1.0</version>
+  <description>CustomTkinter GUI showing the git status (OK, Behind, Unpushed, Modified, Diverged, Stale, Error) of the GitHub repositories cloned into a ROS 2 workspace</description>
+  <maintainer email="herno@ga.sze.hu">horverno</maintainer>
+  <license>GPL-3.0-only</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
+  <exec_depend>git</exec_depend>
+  <exec_depend>python3-tk</exec_depend>
+  <!-- CustomTkinter has no rosdep key (python3-customtkinter is not packaged):
+       install it with `pip install customtkinter`, see README.md -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
