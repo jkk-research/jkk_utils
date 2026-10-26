@@ -52,7 +52,7 @@ The command-line argument takes priority over the ROS parameter, and the ROS par
 - **Fetch all** runs `git fetch --prune` in every listed repository and then rescans.
 - **Pull all (ff-only)** runs `git pull --ff-only` only in repositories whose status is exactly **Behind**. It asks for confirmation first and lists those repositories. The button is disabled when no repository is Behind.
 - **Filter**: All · Needs attention (Modified, Unpushed, Diverged, Error) · Behind · OK.
-- **Right-click** a row, or click its `⋮` button, for: Open folder, Open on GitHub, Copy path, Fetch this repo, Pull (ff-only) this repo. Pull is only enabled when the repository is clean, has no local commits and is behind its upstream.
+- **Right-click** a row, or click its `⋮` button, for: Open folder, Open on GitHub, Copy path, Open in VS Code, Fetch this repo, Pull (ff-only) this repo. Pull is only enabled when the repository is clean, has no local commits and is behind its upstream.
 - Hover over the info text of an **Error** row to see the full git error message.
 
 ### Safety

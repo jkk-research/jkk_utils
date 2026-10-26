@@ -66,6 +66,14 @@ def open_in_file_manager(path):
                      start_new_session=True)
 
 
+def open_in_vscode(path):
+    code = shutil.which('code')
+    if code is None:
+        raise RuntimeError("VS Code command 'code' not found on PATH.")
+    subprocess.Popen([code, str(path)], stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, start_new_session=True)
+
+
 def bind_tree(widget, sequence, func):
     """Bind an event on a widget and all its (CTk internal) descendants."""
     tkinter.Misc.bind(widget, sequence, func, '+')
@@ -496,6 +504,8 @@ class App(ctk.CTk):
         menu.add_command(label='Open on GitHub', command=lambda: self._safe(
             webbrowser.open, report.info.web_url))
         menu.add_command(label='Copy path', command=lambda: self._copy(str(path)))
+        menu.add_command(label='Open in VS Code', command=lambda: self._safe(
+            open_in_vscode, path))
         menu.add_separator()
         menu.add_command(label='Fetch this repo',
                          state='disabled' if self.busy else 'normal',
