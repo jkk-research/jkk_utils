@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="resource/ws_health01.png" alt="rec_gui" width="600">
+  <img src="resource/ws_health02.png" alt="rec_gui" width="600">
 </p>
 
 
