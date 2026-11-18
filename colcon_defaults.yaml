@@ -1,0 +1,48 @@
+# =============================================================================
+# SZE JKK Colcon Defaults example
+# version: 1.0.0
+#
+# Purpose:
+#   Default arguments for `colcon build` in this workspace, so a plain
+#   `colcon build` builds the right package set with the right options (Release, symlink etc.).
+#
+# Download / update:
+#   cd ~/ros2_ws; rm colcon_defaults.yaml; wget https://raw.githubusercontent.com/jkk-research/jkk_utils/ros2/colcon_defaults.yaml
+#
+# Setup:
+#   export COLCON_DEFAULTS_FILE=~/ros2_ws/colcon_defaults.yaml
+#   # permanent:
+#   echo 'export COLCON_DEFAULTS_FILE=~/ros2_ws/colcon_defaults.yaml' >> ~/.bashrc
+#
+# Usage:
+#   cd ~/ros2_ws && colcon build        # always run from the workspace root
+#
+# Overrides (command line wins over this file):
+#   colcon build --packages-select mcap_rec                 # build a skipped pkg
+#   colcon build --event-handlers console_cohesion+         # full verbose output
+#   colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug      # debug build
+#
+# Logs: log/latest_build/<package>/stdout_stderr.log
+# =============================================================================
+
+build:
+  symlink-install: true
+  continue-on-error: true       # keep building independent pkgs after a failure
+  # Verbose per-package output (CMake progress, install lines):
+  # event-handlers:
+  #   - console_cohesion+
+  cmake-args:
+    - -DCMAKE_BUILD_TYPE=Release
+  # jkk_utils: only workspace_health is built, all others are skipped
+  packages-skip:
+    - autoware_speed_relay
+    - demo_jkk
+    - drone_bringup
+    - gamma_bringup
+    - gui_teleop
+    - mcap_rec
+    - pointcloud_manager
+    - pose_repub
+    - steam_deck_jkk
+    - time_utils
+    - timing_benchmark

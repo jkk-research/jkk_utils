@@ -45,6 +45,14 @@ source ~/ros2_ws/install/setup.bash
 cd ~; rm .bash_aliases; wget https://raw.githubusercontent.com/jkk-research/jkk_utils/ros2/.bash_aliases; exec bash
 ```
 
+## `colcon_defaults.yaml`
+
+[colcon_defaults.yaml](https://github.com/jkk-research/jkk_utils/blob/ros2/colcon_defaults.yaml)
+
+```bash
+wget -O ~/ros2_ws/colcon_defaults.yaml https://raw.githubusercontent.com/jkk-research/jkk_utils/ros2/colcon_defaults.yaml; grep -qxF 'export COLCON_DEFAULTS_FILE=~/ros2_ws/colcon_defaults.yaml' ~/.bashrc || echo 'export COLCON_DEFAULTS_FILE=~/ros2_ws/colcon_defaults.yaml' >> ~/.bashrc; exec bash
+```
+
 ## QoS overrides 
 
 ```bash
